@@ -14,7 +14,7 @@
 
 """Parse and render SLURM configuration data."""
 
-__all__ = ["SlurmConf"]
+__all__ = ["SlurmConf", "Node", "DownNode", "FrontendNode", "NodeSet", "Partition"]
 
 import logging
 import os
@@ -22,7 +22,7 @@ import pathlib
 import re
 from dataclasses import make_dataclass
 from itertools import chain
-from typing import List, Union
+from typing import List, Optional, Union
 
 from .token import (
     DownNodeConfOpts,
@@ -218,6 +218,11 @@ def _parse(conf):
             conf_opts["nodesets"].append(NodeSet.from_line(line))
         elif opt == "PartitionName":
             conf_opts["partitions"].append(Partition.from_line(line))
+        elif opt == "SlurmctldHost":
+            if "SlurmctldHost" not in conf_opts.keys():
+                conf_opts["SlurmctldHost"] = [value]
+            else:
+                conf_opts["SlurmctldHost"].append(value)
         elif hasattr(SlurmConfOpts, opt):
             if parse_callback := getattr(SlurmConfOpts, opt).parse:
                 value = parse_callback(value)
@@ -243,7 +248,9 @@ def _render(conf):
     comments = conf.pop("comments")
 
     for opt, value in conf.items():
-        if hasattr(SlurmConfOpts, opt):
+        if opt == "SlurmctldHost":
+            conf_render.extend([f"SlurmctldHost={host}" for host in value])
+        elif hasattr(SlurmConfOpts, opt):
             if render_callback := getattr(SlurmConfOpts, opt).render:
                 value = render_callback(value)
             conf_render.append(f"{opt}={value}")
@@ -279,34 +286,34 @@ class SlurmConf:
         self.dump(self._conf_file)
 
     @property
-    def comments(self) -> List[Comment]:
+    def comments(self) -> Optional[List[Comment]]:
         """Get comments in SLURM configuration file."""
-        return self._data["comments"]
+        return self._data.get("comments")
 
     @property
-    def nodes(self) -> List[Node]:
+    def nodes(self) -> Optional[List[Node]]:
         """Get nodes in SLURM configuration file."""
-        return self._data["nodes"]
+        return self._data.get("nodes")
 
     @property
-    def down_nodes(self) -> List[DownNode]:
+    def down_nodes(self) -> Optional[List[DownNode]]:
         """Get down nodes in SLURM configuration file."""
-        return self._data["down_nodes"]
+        return self._data.get("down_nodes")
 
     @property
-    def frontend_nodes(self) -> List[FrontendNode]:
+    def frontend_nodes(self) -> Optional[List[FrontendNode]]:
         """Get frontend nodes in SLURM configuration file."""
-        return self._data["frontend_nodes"]
+        return self._data.get("frontend_nodes")
 
     @property
-    def nodesets(self) -> List[NodeSet]:
+    def nodesets(self) -> Optional[List[NodeSet]]:
         """Get nodesets in SLURM configuration file."""
-        return self._data["nodesets"]
+        return self._data.get("nodesets")
 
     @property
-    def partitions(self) -> List[Partition]:
+    def partitions(self) -> Optional[List[Partition]]:
         """Get partitions in SLURM configuration file."""
-        return self._data["partitions"]
+        return self._data.get("partitions")
 
     def load(self, conf_file: Union[str, os.PathLike] = SLURM_CONF_FILE) -> None:
         """Load metadata file.
@@ -328,7 +335,7 @@ class SlurmConf:
         if (conf := pathlib.Path(conf_file)).exists():
             _logger.debug(f"Overwriting pre-existing {conf_file}")
 
-        conf.write_text(_render(self._data), encoding="ascii")
+        conf.write_text(_render(self._data.copy()), encoding="ascii")
 
 
 # Generate SLURM configuration API.
