@@ -142,11 +142,11 @@ included in the project:
 
 4. Ensure that your changes pass all tests:
 
-  ```bash
-  tox run -e fmt
-  tox run -e lint
-  tox run -e unit
-  ```
+    ```bash
+    tox run -e fmt
+    tox run -e lint
+    tox run -e unit
+    ```
 
 5. Commit your changes in logical chunks. Please adhere to these [git commit
    message guidelines](https://tbaggery.com/2008/04/19/a-note-about-git-commit-messages.html)
