@@ -20,6 +20,7 @@ import logging
 import os
 import pathlib
 import re
+import shlex
 from dataclasses import make_dataclass
 from itertools import chain
 from typing import List, Optional, Union
@@ -84,7 +85,7 @@ def _gen_from_line(conf_opts):
 
     def from_line(cls, line: str):
         data = {}
-        for token in line.split():
+        for token in shlex.split(line):  # Use shlex.split(...) to preserve quotation blocks.
             opt, value = token.split("=", 1)
             if hasattr(conf_opts, opt):
                 if parse_callback := getattr(conf_opts, opt).parse:
@@ -278,12 +279,12 @@ class SlurmConf:
 
     def __enter__(self) -> "SlurmConf":
         """Load metadata file when entering context."""
-        self.load(self._conf_file)
+        self.load()
         return self
 
     def __exit__(self, exc_type, exc_val, exc_tb) -> None:
         """Render and dump metadata file and configuration file when leaving context."""
-        self.dump(self._conf_file)
+        self.dump()
 
     @property
     def comments(self) -> Optional[List[Comment]]:
@@ -315,23 +316,29 @@ class SlurmConf:
         """Get partitions in SLURM configuration file."""
         return self._data.get("partitions")
 
-    def load(self, conf_file: Union[str, os.PathLike] = SLURM_CONF_FILE) -> None:
-        """Load metadata file.
+    def load(self) -> None:
+        """Load slurm.conf configuration file.
 
-        Args:
-            conf_file: Path of metadata file to load.
+        Notes:
+            This method will create a blank configuration if the slurm.conf
+            configuration file passed during initialisation does not exist.
         """
-        if (conf := pathlib.Path(conf_file)).exists():
+        if (conf := pathlib.Path(self._conf_file)).exists():
             self._data = _parse(conf.read_text(encoding="ascii"))
         else:
-            _logger.warning(f"{conf_file} not found")
+            _logger.debug(f"{self._conf_file} not found. Creating blank configuration")
 
-    def dump(self, conf_file: Union[str, os.PathLike] = SLURM_CONF_FILE) -> None:
-        """Render and dump metadata file and slurm configuration file.
+    def dump(self, conf_file: Optional[Union[str, os.PathLike]] = None) -> None:
+        """Render and dump slurm.conf configuration file.
 
         Args:
-            conf_file: Filesystem location to dump SLURM configuration file.
+            conf_file: Location to dump SLURM configuration information.
+
+        Notes:
+            This method will overwrite any existing slurm.conf file if a
+            pre-existing file located in the same location as `conf_file`.
         """
+        conf_file = conf_file if conf_file else self._conf_file
         if (conf := pathlib.Path(conf_file)).exists():
             _logger.debug(f"Overwriting pre-existing {conf_file}")
 
