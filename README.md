@@ -12,11 +12,54 @@
 
 ## Installation
 
-TODO...
+#### Option 1: PyPI
+
+```shell
+$ python3 -m pip install slurmtools
+```
+
+#### Option 2: Install from source
+
+```shell
+$ git clone https://github.com/canonical/slurmtools.git
+$ cd slurmtools
+$ python3 -m pip install .
+```
 
 ## Usage
 
-TODO...
+#### `slurmconf`
+
+This module provides an API for performing CRUD operations on the SLURM configuration file _slurm.conf_.
+With this module, you can:
+
+##### Edit a pre-existing configuration
+
+```python
+from slurmtools.slurmconf import SlurmConf
+
+with SlurmConf("/etc/slurm/slurm.conf") as conf:
+    del conf.inactive_limit
+    conf.max_job_count = 20000
+    conf.proctrack_type = "proctrack/linuxproc"
+```
+
+##### Add new nodes
+
+```python3
+from slurmtools.slurmconf import Node, SlurmConf
+
+with SlurmConf("/etc/slurm/slurm.conf") as conf:
+    node_name = "test-node"
+    node_conf = {
+        "NodeName": node_name,
+        "NodeAddr": "12.34.56.78",
+        "CPUs": 1, 
+        "RealMemory": 1000, 
+        "TmpDisk": 10000,
+    }
+    conf.nodes.update({node_name: Node(**node_conf)})
+```
 
 ## Project & Community
 
@@ -26,7 +69,7 @@ It is an open-source project that is welcome to community involvement, contribut
 and constructive feedback. Interested in being involved with the development of `slurmtools`? 
 Check out these links below:
 
-* [Ubuntu HPC Matrix space](https://matrix.to/#/#ubuntu-hpc:matrix.org)
+* [Join our online chat](https://matrix.to/#/#ubuntu-hpc:matrix.org)
 * [Code of Conduct](https://ubuntu.com/community/code-of-conduct)
 * [Contributing guidelines](./CONTRIBUTING.md)
 
