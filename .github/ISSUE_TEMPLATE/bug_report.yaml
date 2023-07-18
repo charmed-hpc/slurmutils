@@ -1,0 +1,53 @@
+name: Bug Report
+description: File a bug report
+labels: ["Type: Bug", "Status: Triage"]
+body:
+  - type: markdown
+    attributes:
+      value: >
+        Thanks for taking the time to fill out this bug report! Before submitting your issue, please make
+        sure you are using the latest version of slurmtools. If not, please switch to this version prior to 
+        posting your report to make sure it's not already solved.
+  - type: textarea
+    id: bug-description
+    attributes:
+      label: Bug Description
+      description: >
+        If applicable, add screenshots to help explain the problem you are facing.
+    validations:
+      required: true
+  - type: textarea
+    id: reproduction
+    attributes:
+      label: To Reproduce
+      description: >
+        Please provide a step-by-step instruction of how to reproduce the behavior.
+      placeholder: |
+        1. `python3 ...`
+        2. `See stacktrace ...`
+    validations:
+      required: true
+  - type: textarea
+    id: environment
+    attributes:
+      label: Environment
+      description: >
+        We need to know a bit more about the context in which you run slurmtools.
+        - Are you using it locally, on lxd, in multipass or on some other platform?
+        - What version are you using?
+        - Version of any applicable components, like the slurmctld daemon, python3, and/or operating system.
+    validations:
+      required: true
+  - type: textarea
+    id: logs
+    attributes:
+      label: Relevant log output
+      description: >
+        Please copy and paste any relevant log output. This will be automatically formatted into code, so no need for backticks.
+      render: shell
+    validations:
+      required: true
+  - type: textarea
+    id: additional-context
+    attributes:
+      label: Additional context
