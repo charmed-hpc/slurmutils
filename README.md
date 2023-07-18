@@ -1,5 +1,5 @@
 <h1 align="center">
-  slurmtools
+  slurmutils
 </h1>
 
 <p align="center">
@@ -15,14 +15,14 @@
 #### Option 1: PyPI
 
 ```shell
-$ python3 -m pip install slurmtools
+$ python3 -m pip install slurmutils
 ```
 
 #### Option 2: Install from source
 
 ```shell
-$ git clone https://github.com/canonical/slurmtools.git
-$ cd slurmtools
+$ git clone https://github.com/canonical/slurmutils.git
+$ cd slurmutils
 $ python3 -m pip install .
 ```
 
@@ -36,7 +36,7 @@ With this module, you can:
 ##### Edit a pre-existing configuration
 
 ```python
-from slurmtools.slurmconf import SlurmConf
+from slurmutils.slurmconf import SlurmConf
 
 with SlurmConf("/etc/slurm/slurm.conf") as conf:
     del conf.inactive_limit
@@ -47,7 +47,7 @@ with SlurmConf("/etc/slurm/slurm.conf") as conf:
 ##### Add new nodes
 
 ```python3
-from slurmtools.slurmconf import Node, SlurmConf
+from slurmutils.slurmconf import Node, SlurmConf
 
 with SlurmConf("/etc/slurm/slurm.conf") as conf:
     node_name = "test-node"
@@ -63,10 +63,10 @@ with SlurmConf("/etc/slurm/slurm.conf") as conf:
 
 ## Project & Community
 
-The `slurmtools` package is a project of the 
+The `slurmutils` package is a project of the 
 [Ubuntu HPC](https://discourse.ubuntu.com/t/high-performance-computing-team/35988) community. 
 It is an open-source project that is welcome to community involvement, contributions, suggestions, fixes, 
-and constructive feedback. Interested in being involved with the development of `slurmtools`? 
+and constructive feedback. Interested in being involved with the development of `slurmutils`? 
 Check out these links below:
 
 * [Join our online chat](https://matrix.to/#/#ubuntu-hpc:matrix.org)
@@ -75,5 +75,5 @@ Check out these links below:
 
 ## License
 
-The `slurmtools` package is free software, distributed under the Apache Software License, version 2.0.
+The `slurmutils` package is free software, distributed under the Apache Software License, version 2.0.
 See the [LICENSE](./LICENSE) file for more information.

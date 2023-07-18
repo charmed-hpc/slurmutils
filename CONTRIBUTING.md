@@ -1,11 +1,11 @@
-# Contributing to slurmtools
+# Contributing to slurmutils
 
-Do you have something that you wish to contribute to slurmtools? **If so, here is how you can help!**
+Do you have something that you wish to contribute to slurmutils? **If so, here is how you can help!**
 
 Please take a moment to review this document so that the contribution process will be easy and effective for everyone
 involved.
 
-Following these guidelines helps you communicate that you respect the developers managing and developing slurmtools. 
+Following these guidelines helps you communicate that you respect the developers managing and developing slurmutils. 
 In return, they should reciprocate that respect while they are addressing your issue or assessing your submitted 
 patches and features.
 
@@ -31,46 +31,46 @@ and [submitted pull requests](#pull-requests), but please follow these guideline
 The [Discussions](#discussions) page is a better place to get help for personal support requests.
 
 * Please **do not** derail or troll issues. Keep the discussion on track and have respect for the other 
-users/contributors of slurmtools.
+users/contributors of slurmutils.
 
 * Please **do not** post comments consisting solely of "+1", ":thumbsup:", or something similar. 
 Use [GitHub's "reactions" feature](https://blog.github.com/2016-03-10-add-reactions-to-pull-requests-issues-and-comments/) 
 instead.
-  * The maintainers of slurmtools reserve the right to delete comments that violate this rule.
+  * The maintainers of slurmutils reserve the right to delete comments that violate this rule.
 
 * Please **do not** repost or reopen issues that have been closed. Please either 
 submit a new issue or browser through previous issues.
-  * The maintainers of slurmtools reserve the right to delete issues that violate this rule.
+  * The maintainers of slurmutils reserve the right to delete issues that violate this rule.
 
 ## Issues and Labels
 
-The slurmtools issue tracker uses a variety of labels to help organize and identify issues. 
-Here is a list of some of these labels, and how the maintainers of slurmtools use them:
+The slurmutils issue tracker uses a variety of labels to help organize and identify issues. 
+Here is a list of some of these labels, and how the maintainers of slurmutils use them:
 
-* `Type: Bug` - Issues reported in the slurmtools source code that either produce errors or unexpected behavior.
+* `Type: Bug` - Issues reported in the slurmutils source code that either produce errors or unexpected behavior.
 
 * `Status: Confirmed` - Issues marked `Type: Bug` that have be confirmed to be reproducible on a separate system.
 
-* `Type: Documentation` - Issues for improving or updating slurmtools's documentation. 
+* `Type: Documentation` - Issues for improving or updating slurmutils's documentation. 
 Can also be used for pull requests.
 
-* `Type: Refactor` - Issues that pertain to improving the existing slurmtools code base.
+* `Type: Refactor` - Issues that pertain to improving the existing slurmutils code base.
 
-* `Type: Idea Bank` - Issues that pertain to proposing potential improvement to slurmtools.
+* `Type: Idea Bank` - Issues that pertain to proposing potential improvement to slurmutils.
 
-* `Type: Enchancement` - Issues marked as an agreed upon enhancement to slurmtools. Can also be used for pull requests.
+* `Type: Enchancement` - Issues marked as an agreed upon enhancement to slurmutils. Can also be used for pull requests.
 
-* `Statues: Help wanted` - Issues where we need help from the greater slurmtools community to solve.
+* `Statues: Help wanted` - Issues where we need help from the greater slurmutils community to solve.
 
-For a complete look at slurmtools's labels, see the 
-[project labels page](https://github.com/canonical/slurmtools/labels).
+For a complete look at slurmutils's labels, see the 
+[project labels page](https://github.com/canonical/slurmutils/labels).
 
 ## Bug Reports
 
-A bug is a *demonstrable problem* that is caused by slurmtools. Good bug reports make slurmtools more robust, so thank 
+A bug is a *demonstrable problem* that is caused by slurmutils. Good bug reports make slurmutils more robust, so thank 
 you for taking the time to report issues in the source code!
 
-Guidelines for reporting bugs in slurmtools:
+Guidelines for reporting bugs in slurmutils:
 
 1. __Validate your testlet__ &mdash; ensure that your issue is not being caused by either a semantic or syntactic 
 error in your testlet's code.
@@ -79,9 +79,9 @@ error in your testlet's code.
 someone else.
 
 3. __Check if the issue has already been fixed__ &mdash; try to reproduce your issue using the latest `main` 
-in the slurmtools repository.
+in the slurmutils repository.
 
-4. **Isolate the problem** &mdash; the more pinpointed the issue is, the easier time the slurmtools developers 
+4. **Isolate the problem** &mdash; the more pinpointed the issue is, the easier time the slurmutils developers 
 will have fixing it.
 
 A good bug report should not leave others needing to chase you for more information. 
@@ -93,12 +93,12 @@ potential bugs.
 ## Feature Requests
 
 All feature requests should be posted to GitHub Discussions and tagged as `Type: Idea Bank`. The maintainers of
-slurmtools already know the features they want to incorporate into slurmtools, but they are always open to 
+slurmutils already know the features they want to incorporate into slurmutils, but they are always open to 
 new ideas and potential improvements. GitHub Discussions is the best place to post these types of requests 
 because it allows for feedback from the entire community and does not bloat the issue tracker. Please note that not 
-all feature requests will be incorporated into slurmtools. Also, feature requests posted on the issue tracker 
+all feature requests will be incorporated into slurmutils. Also, feature requests posted on the issue tracker 
 will be tagged as `Type: Invalid` and closed. Lastly, please note that spamming the maintainers to incorporate a
-feature you want into slurmtools will not improve its likelihood of being implemented; it may result in you receiving
+feature you want into slurmutils will not improve its likelihood of being implemented; it may result in you receiving
 a temporary ban from the repository.
 
 ## Pull Requests
@@ -108,7 +108,7 @@ remain focused in scope and should not contain unrelated commits.
 
 __Ask first__ before embarking on any __significant__ pull request (e.g. implementing new features, refactoring code, 
 incorporating a new test environment provider, etc.), otherwise you risk spending a lot of time working on something 
-that slurmtools's developers might not want to merge into the project! For trivial things, or things that do not require 
+that slurmutils's developers might not want to merge into the project! For trivial things, or things that do not require 
 a lot of your time, you can go ahead and make a pull request.
 
 Adhering to the following process is the best way to get your work
@@ -119,14 +119,14 @@ included in the project:
 
    ```bash
    # Clone your fork of the repo into the current directory
-   git clone https://github.com/<your-username>/slurmtools.git
+   git clone https://github.com/<your-username>/slurmutils.git
    # Navigate to the newly cloned directory
-   cd slurmtools
+   cd slurmutils
    # Assign the original repo to a remote called "upstream"
-   git remote add upstream https://github.com/canonical/slurmtools.git
+   git remote add upstream https://github.com/canonical/slurmutils.git
    ```
 
-2. If you cloned a while ago, pull the latest changes from the upstream slurmtools repository:
+2. If you cloned a while ago, pull the latest changes from the upstream slurmutils repository:
 
    ```bash
    git checkout main
@@ -169,14 +169,14 @@ included in the project:
 8. [Open a Pull Request](https://help.github.com/articles/about-pull-requests/)
     with a clear title and description against the `main` branch.
 
-**IMPORTANT**: By submitting a patch, improvement, or new feature, you agree to allow the maintainers of slurmtools to 
+**IMPORTANT**: By submitting a patch, improvement, or new feature, you agree to allow the maintainers of slurmutils to 
 license your contributions under the terms of the [Apache 2.0 license](./LICENSE), and you agree to sign
 [Canonical's contributor license agreement](https://ubuntu.com/legal/contributors)
 
 ## Discussions
 
-GitHub's discussions are a great place to connect with other users of slurmtools as well as discuss potential 
-features and resolve personal support questions. It is expected that the users of slurmtools remain respectful of 
+GitHub's discussions are a great place to connect with other users of slurmutils as well as discuss potential 
+features and resolve personal support questions. It is expected that the users of slurmutils remain respectful of 
 each other. Discussion moderators reserve the right to suspend discussions and/or delete posts that do not follow 
 this rule.
 
@@ -184,17 +184,17 @@ this rule.
 
 ### Python
 
-The following guidelines must be adhered to if you are writing code to be merged into the main slurmtools code base:
+The following guidelines must be adhered to if you are writing code to be merged into the main slurmutils code base:
 
 * Adhere to the Python code style guidelines outlined in [Python Enhancement Proposal 8](https://pep8.org/).
 
 * Adhere to the Python docstring conventions outlined in 
 [Python Enhancement Proposal 257](https://www.python.org/dev/peps/pep-0257/).
-  * *slurmtools docstrings follow the 
+  * *slurmutils docstrings follow the 
   [Google docstring format](https://github.com/google/styleguide/blob/gh-pages/pyguide.md#38-comments-and-docstrings)*.
 
 ## License & CLA
 
-By contributing your code to slurmtools, you agree to license your contribution under the 
+By contributing your code to slurmutils, you agree to license your contribution under the 
 [Apache 2.0 license](https://www.apache.org/licenses/LICENSE-2.0.html), and you agree to
 sign [Canonical's contributor license agreement](https://ubuntu.com/legal/contributors).

@@ -6,7 +6,7 @@ body:
     attributes:
       value: >
         Thanks for taking the time to fill out this bug report! Before submitting your issue, please make
-        sure you are using the latest version of slurmtools. If not, please switch to this version prior to 
+        sure you are using the latest version of slurmutils. If not, please switch to this version prior to 
         posting your report to make sure it's not already solved.
   - type: textarea
     id: bug-description
@@ -32,7 +32,7 @@ body:
     attributes:
       label: Environment
       description: >
-        We need to know a bit more about the context in which you run slurmtools.
+        We need to know a bit more about the context in which you run slurmutils.
         - Are you using it locally, on lxd, in multipass or on some other platform?
         - What version are you using?
         - Version of any applicable components, like the slurmctld daemon, python3, and/or operating system.
