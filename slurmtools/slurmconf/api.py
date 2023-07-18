@@ -23,7 +23,7 @@ import re
 import shlex
 from dataclasses import make_dataclass
 from itertools import chain
-from typing import List, Optional, Union
+from typing import Dict, List, Optional, Union
 
 from .token import (
     DownNodeConfOpts,
@@ -190,11 +190,11 @@ def _parse(conf):
         conf: SLURM configuration data in SLURM format.
     """
     conf_opts = {
-        "nodes": [],
+        "nodes": {},
         "down_nodes": [],
-        "frontend_nodes": [],
-        "nodesets": [],
-        "partitions": [],
+        "frontend_nodes": {},
+        "nodesets": {},
+        "partitions": {},
         "comments": [],
     }
 
@@ -210,15 +210,19 @@ def _parse(conf):
 
         opt, value = line.split("=", 1)
         if opt == "NodeName":
-            conf_opts["nodes"].append(Node.from_line(line))
+            node = Node.from_line(line)
+            conf_opts["nodes"][node.node_name] = node
         elif opt == "DownNodes":
             conf_opts["down_nodes"].append(DownNode.from_line(line))
         elif opt == "FrontendName":
-            conf_opts["frontend_nodes"].append(FrontendNode.from_line(line))
+            frontend = FrontendNode.from_line(line)
+            conf_opts["frontend_nodes"][frontend.frontend_name] = frontend
         elif opt == "NodeSet":
-            conf_opts["nodesets"].append(NodeSet.from_line(line))
+            nodeset = NodeSet.from_line(line)
+            conf_opts["nodesets"][nodeset.nodeset] = nodeset
         elif opt == "PartitionName":
-            conf_opts["partitions"].append(Partition.from_line(line))
+            partition = Partition.from_line(line)
+            conf_opts["partitions"][partition.partition_name] = partition
         elif opt == "SlurmctldHost":
             if "SlurmctldHost" not in conf_opts.keys():
                 conf_opts["SlurmctldHost"] = [value]
@@ -258,7 +262,9 @@ def _render(conf):
         else:
             _logger.warning(f"Unrecognized configuration option: {opt}")
 
-    for struct in chain(nodes, down_nodes, frontend_nodes, nodesets, partitions):
+    for struct in chain(
+        nodes.values(), down_nodes, frontend_nodes.values(), nodesets.values(), partitions.values()
+    ):
         conf_render.append(struct.to_line())
 
     for comment in comments:
@@ -292,7 +298,7 @@ class SlurmConf:
         return self._data.get("comments")
 
     @property
-    def nodes(self) -> Optional[List[Node]]:
+    def nodes(self) -> Optional[Dict[str, Node]]:
         """Get nodes in SLURM configuration file."""
         return self._data.get("nodes")
 
@@ -302,17 +308,17 @@ class SlurmConf:
         return self._data.get("down_nodes")
 
     @property
-    def frontend_nodes(self) -> Optional[List[FrontendNode]]:
+    def frontend_nodes(self) -> Optional[Dict[str, FrontendNode]]:
         """Get frontend nodes in SLURM configuration file."""
         return self._data.get("frontend_nodes")
 
     @property
-    def nodesets(self) -> Optional[List[NodeSet]]:
+    def nodesets(self) -> Optional[Dict[str, NodeSet]]:
         """Get nodesets in SLURM configuration file."""
         return self._data.get("nodesets")
 
     @property
-    def partitions(self) -> Optional[List[Partition]]:
+    def partitions(self) -> Optional[Dict[str, Partition]]:
         """Get partitions in SLURM configuration file."""
         return self._data.get("partitions")
 

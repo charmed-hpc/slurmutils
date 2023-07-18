@@ -78,11 +78,11 @@ class TestSlurmConf(unittest.TestCase):
         """Test that SlurmConf can successfully load/parse example configuration file."""
         with SlurmConf("slurm.conf") as conf:
             self.assertNotEqual(conf.comments, [])
-            self.assertNotEqual(conf.nodes, [])
+            self.assertNotEqual(conf.nodes, {})
             self.assertNotEqual(conf.down_nodes, [])
-            self.assertEqual(conf.frontend_nodes, [])
-            self.assertEqual(conf.nodesets, [])
-            self.assertNotEqual(conf.partitions, [])
+            self.assertEqual(conf.frontend_nodes, {})
+            self.assertEqual(conf.nodesets, {})
+            self.assertNotEqual(conf.partitions, {})
 
     def test_edit(self) -> None:
         """Test if SlurmConf can successfully edit the example configuration file."""
