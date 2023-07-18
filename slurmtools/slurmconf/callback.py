@@ -152,17 +152,18 @@ topology_param = Callback(lambda val: val.split(","), _to_slurm_comma_sep)
 node_cpu_spec_list = Callback(lambda val: val.split(","), _to_slurm_comma_sep)
 node_features = Callback(lambda val: val.split(","), _to_slurm_comma_sep)
 node_gres = Callback(lambda val: val.split(","), _to_slurm_comma_sep)
-node_reason = Callback(None, lambda val: f"\"{val}\"")
+node_reason = Callback(None, lambda val: f'"{val}"')
 
 # DownNode configuration values.
-down_reason = Callback(None, lambda val: f"\"{val}\"")
+down_name = Callback(lambda val: val.split(","), _to_slurm_comma_sep)
+down_reason = Callback(None, lambda val: f'"{val}"')
 
 # FrontendNode configuration values.
 frontend_allow_groups = Callback(lambda val: val.split(","), _to_slurm_comma_sep)
 frontend_allow_users = Callback(lambda val: val.split(","), _to_slurm_comma_sep)
 frontend_deny_groups = Callback(lambda val: val.split(","), _to_slurm_comma_sep)
 frontend_deny_users = Callback(lambda val: val.split(","), _to_slurm_comma_sep)
-frontend_reason = Callback(None, lambda val: f"\"{val}\"")
+frontend_reason = Callback(None, lambda val: f'"{val}"')
 
 # Partition configuration values.
 partition_alloc_nodes = Callback(lambda val: val.split(","), _to_slurm_comma_sep)

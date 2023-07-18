@@ -33,6 +33,7 @@ from .callback import (
     cpu_freq_governors,
     debug_flags,
     dependency_param,
+    down_name,
     down_reason,
     federation_param,
     frontend_allow_groups,
@@ -321,7 +322,7 @@ class _NodeConfOpts(NamedTuple):
 class _DownNodeConfOpts(NamedTuple):
     """SLURM down node configuration options."""
 
-    DownNodes: Callback = Callback()
+    DownNodes: Callback = down_name
     Reason: Callback = down_reason
     State: Callback = Callback()
 
