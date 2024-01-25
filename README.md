@@ -75,5 +75,5 @@ Check out these links below:
 
 ## License
 
-The `slurmutils` package is free software, distributed under the Apache Software License, version 2.0.
+The `slurmutils` package is free software, distributed under the GNU Lesser General Public License, v3.0.
 See the [LICENSE](./LICENSE) file for more information.
