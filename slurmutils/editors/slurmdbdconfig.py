@@ -79,7 +79,7 @@ def edit(file: Union[str, os.PathLike]) -> SlurmdbdConfig:
         file: Path to slurmdbd.conf file to edit. If slurmdbd.conf does
             not exist at the specified file path, it will be created.
     """
-    if os.path.exists(file):
+    if not os.path.exists(file):
         # Create an empty SlurmConfig that can be populated.
         config = SlurmdbdConfig()
     else:

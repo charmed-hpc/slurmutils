@@ -39,7 +39,7 @@ from ._editor import (
 
 
 def _marshaller(config: SlurmConfig) -> str:
-    """Marshall Python object into slurm.conf configuration file.
+    """Marshal Python object into slurm.conf configuration file.
 
     Args:
         config: `SlurmConfig` object to convert to slurm.conf configuration file.
@@ -175,7 +175,7 @@ def edit(file: Union[str, os.PathLike]) -> SlurmConfig:
         file: Path to slurm.conf file to edit. If slurm.conf does
             not exist at the specified file path, it will be created.
     """
-    if os.path.exists(file):
+    if not os.path.exists(file):
         # Create an empty SlurmConfig that can be populated.
         config = SlurmConfig()
     else:
