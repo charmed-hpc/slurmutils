@@ -220,7 +220,7 @@ def marshal_model(
             _logger.debug("Ignoring option %s. Option is present in ignore set %s", option, ignore)
 
     if inline:
-        # Whitespace is the seperator in Slurm configuration syntax.
+        # Whitespace is the separator in Slurm configuration syntax.
         marshalled = " ".join(marshalled) + "\n"
     else:
         # Append newline character so that each configuration is on its own line.
