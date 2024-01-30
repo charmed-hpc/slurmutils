@@ -20,7 +20,7 @@ import shlex
 from collections import deque
 from os import PathLike
 from pathlib import Path
-from typing import Deque, Dict, List, Union
+from typing import Deque, Dict, List, Optional, Set, Union
 
 from slurmutils.exceptions import EditorError
 
@@ -122,6 +122,15 @@ def clean(config: Deque[str]) -> Deque[str]:
     return processed
 
 
+def header(msg: str) -> str:
+    """Generate header for marshalled configuration file.
+
+    Args:
+        msg: Message to put into header.
+    """
+    return "#\n" + "".join(f"# {line}\n" for line in msg.splitlines()) + "#\n"
+
+
 def parse_repeating_config(__key, __value, pocket: Dict) -> None:
     """Parse `slurm.conf` configuration knobs with keys that can repeat.
 
@@ -158,7 +167,7 @@ def parse_model(line: str, pocket: Union[Dict, List], model) -> None:
                 holder.update({option: value})
         else:
             raise EditorError(
-                f"{option} is not a valid configuration option for {model.__class__.__name__}."
+                f"{option} is not a valid configuration option for {model.__name__}."
             )
 
     # Use temporary model object to update pocket with a Python dictionary
@@ -169,7 +178,52 @@ def parse_model(line: str, pocket: Union[Dict, List], model) -> None:
         pocket.update(model(**holder).dict())
 
 
-def header():
-    """Generate header for marshalled configuration."""
-    # TODO: Add a header with the time the configuration
-    #   file was created.
+def marshal_model(
+    model, ignore: Optional[Set] = None, inline: bool = False
+) -> Union[List[str], str]:
+    """Marshal a Slurm model back into its Slurm configuration syntax.
+
+    Args:
+        model: Slurm model object to marshal into Slurm configuration syntax.
+        ignore: Set of keys to ignore on model object when marshalling. Useful for models that
+            have child models under certain keys that are directly handled. Default is None.
+        inline: If True, marshal object into single line rather than multiline. Default is False.
+    """
+    marshalled = []
+    if ignore is None:
+        # Create an empty set if not ignores are specified. Prevents us from needing to
+        # rely on a mutable default in the function signature.
+        ignore = set()
+
+    if primary_key := model._primary_key:
+        attr = _pascal2snake(primary_key)
+        primary_value = getattr(model, attr)
+        data = {primary_key: primary_value, **model.dict()[primary_value]}
+    else:
+        data = model.dict()
+
+    for option, value in data.items():
+        if option not in ignore:
+            if hasattr(model, attr := _pascal2snake(option)):
+                if (
+                    attr in model._callbacks
+                    and (callback := model._callbacks[attr].marshal) is not None
+                ):
+                    value = callback(value)
+
+                marshalled.append(f"{option}={value}")
+            else:
+                raise EditorError(
+                    f"{option} is not a valid configuration option for {model.__class__.__name__}."
+                )
+        else:
+            _logger.debug("Ignoring option %s. Option is present in ignore set %s", option, ignore)
+
+    if inline:
+        # Whitespace is the seperator in Slurm configuration syntax.
+        marshalled = " ".join(marshalled) + "\n"
+    else:
+        # Append newline character so that each configuration is on its own line.
+        marshalled = [line + "\n" for line in marshalled]
+
+    return marshalled

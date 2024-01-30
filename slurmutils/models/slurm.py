@@ -49,6 +49,7 @@ class Node(BaseModel):
         super().__init__()
         self._register.update({kwargs.pop("NodeName"): {**kwargs}})
 
+    _primary_key = "NodeName"
     _callbacks = MappingProxyType(
         {
             "cpu_spec_list": CommaSeparatorCallback,
@@ -90,6 +91,7 @@ class DownNodes(BaseModel):
     the slurm.conf manpage. `man slurm.conf.5`
     """
 
+    _primary_key = None
     _callbacks = MappingProxyType(
         {
             "down_nodes": CommaSeparatorCallback,
@@ -113,6 +115,7 @@ class FrontendNode(BaseModel):
         super().__init__()
         self._register.update({kwargs.pop("FrontendName"): {**kwargs}})
 
+    _primary_key = "FrontendName"
     _callbacks = MappingProxyType(
         {
             "allow_groups": CommaSeparatorCallback,
@@ -145,6 +148,7 @@ class NodeSet(BaseModel):
         super().__init__()
         self._register.update({kwargs.pop("NodeSet"): {**kwargs}})
 
+    _primary_key = "NodeSet"
     _callbacks = MappingProxyType({"nodes": CommaSeparatorCallback})
 
     node_set = property(*primary_key_descriptors())
@@ -163,6 +167,7 @@ class Partition(BaseModel):
         super().__init__()
         self._register.update({kwargs.pop("PartitionName"): {**kwargs}})
 
+    _primary_key = "PartitionName"
     _callbacks = MappingProxyType(
         {
             "alloc_nodes": CommaSeparatorCallback,
@@ -457,6 +462,7 @@ class SlurmConfig(BaseModel):
     the slurm.conf manpage. `man slurm.conf.5`
     """
 
+    _primary_key = None
     _callbacks = MappingProxyType(
         {
             "acct_storage_external_host": CommaSeparatorCallback,

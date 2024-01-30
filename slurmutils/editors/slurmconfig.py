@@ -20,6 +20,7 @@ import functools
 import os
 from collections import deque
 from contextlib import contextmanager
+from datetime import datetime
 from typing import Union
 
 from slurmutils.models import DownNodes, FrontendNode, Node, NodeSet, Partition, SlurmConfig
@@ -28,8 +29,10 @@ from ._editor import (
     clean,
     dump_base,
     dumps_base,
+    header,
     load_base,
     loads_base,
+    marshal_model,
     parse_model,
     parse_repeating_config,
 )
@@ -39,17 +42,69 @@ def _marshaller(config: SlurmConfig) -> str:
     """Marshall Python object into slurm.conf configuration file.
 
     Args:
-        config: Python object to convert to slurm.conf configuration file.
+        config: `SlurmConfig` object to convert to slurm.conf configuration file.
     """
-    ...
+    marshalled = [header(f"`slurm.conf` file generated at {datetime.now()} by slurmutils.")]
 
+    if config.include:
+        marshalled.append(header("Included configuration files"))
+        marshalled.extend([f"Include {i}\n" for i in config.include] + ["\n"])
+    if config.slurmctld_host:
+        marshalled.extend([f"SlurmctldHost={host}\n" for host in config.slurmctld_host] + ["\n"])
 
-_parse_slurm = functools.partial(parse_model, model=SlurmConfig)
-_parse_node = functools.partial(parse_model, model=Node)
-_parse_frontend = functools.partial(parse_model, model=FrontendNode)
-_parse_down_node = functools.partial(parse_model, model=DownNodes)
-_parse_node_set = functools.partial(parse_model, model=NodeSet)
-_parse_partition = functools.partial(parse_model, model=Partition)
+    # Marshal the SlurmConfig object into Slurm configuration format.
+    # Ignore pockets containing child models as they will be marshalled inline.
+    marshalled.extend(
+        marshal_model(
+            config,
+            ignore={
+                "Includes",
+                "SlurmctldHost",
+                "nodes",
+                "frontend_nodes",
+                "down_nodes",
+                "node_sets",
+                "partitions",
+            },
+        )
+        + ["\n"]
+    )
+
+    if len(config.nodes) != 0:
+        marshalled.extend(
+            [header("Node configurations")]
+            + [marshal_model(node, inline=True) for node in config.nodes]
+            + ["\n"]
+        )
+
+    if len(config.frontend_nodes) != 0:
+        marshalled.extend(
+            [header("Frontend node configurations")]
+            + [marshal_model(frontend, inline=True) for frontend in config.frontend_nodes]
+            + ["\n"]
+        )
+
+    if len(config.down_nodes) != 0:
+        marshalled.extend(
+            [header("Down node configurations")]
+            + [marshal_model(down_node, inline=True) for down_node in config.down_nodes]
+            + ["\n"]
+        )
+
+    if len(config.node_sets) != 0:
+        marshalled.extend(
+            [header("Node set configurations")]
+            + [marshal_model(node_set, inline=True) for node_set in config.node_sets]
+            + ["\n"]
+        )
+
+    if len(config.partitions) != 0:
+        marshalled.extend(
+            [header("Partition configurations")]
+            + [marshal_model(part, inline=True) for part in config.partitions]
+        )
+
+    return "".join(marshalled)
 
 
 def _parser(config: str) -> SlurmConfig:
@@ -60,13 +115,11 @@ def _parser(config: str) -> SlurmConfig:
     """
     slurm_conf = {}
     nodes = {}
-    down_nodes = []
     frontend_nodes = {}
+    down_nodes = []
     node_sets = {}
     partitions = {}
 
-    # import pdb
-    # pdb.set_trace()
     config = clean(deque(config.splitlines()))
     while config:
         line = config.popleft()
@@ -86,17 +139,17 @@ def _parser(config: str) -> SlurmConfig:
         # rules for that specific data model and enter its parsed information
         # into the appropriate pocket.
         elif line.startswith("NodeName"):
-            _parse_node(line, pocket=nodes)
-        elif line.startswith("DownNodes"):
-            _parse_down_node(line, pocket=down_nodes)
+            parse_model(line, pocket=nodes, model=Node)
         elif line.startswith("FrontendNode"):
-            _parse_frontend(line, pocket=frontend_nodes)
+            parse_model(line, pocket=frontend_nodes, model=FrontendNode)
+        elif line.startswith("DownNodes"):
+            parse_model(line, pocket=down_nodes, model=DownNodes)
         elif line.startswith("NodeSet"):
-            _parse_node_set(line, pocket=node_sets)
+            parse_model(line, pocket=node_sets, model=NodeSet)
         elif line.startswith("PartitionName"):
-            _parse_partition(line, pocket=partitions)
+            parse_model(line, pocket=partitions, model=Partition)
         else:
-            _parse_slurm(line, pocket=slurm_conf)
+            parse_model(line, pocket=slurm_conf, model=SlurmConfig)
 
     return SlurmConfig(
         **slurm_conf,

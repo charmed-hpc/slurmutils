@@ -227,6 +227,24 @@ class BaseModel(ABC):
 
     @property
     @abstractmethod
+    def _primary_key(self) -> Optional[str]:
+        """Primary key for data model.
+
+        A primary key is required for data models that have a unique identifier
+        to preserve the integrity of the Slurm configuration syntax. For example,
+        for compute nodes, the primary key would be the node name `NodeName`. Node
+        name can be used nicely for identifying nodes in maps, but it is difficult to
+        carry along the NodeName key inside the internal register of the class.
+
+        _primary_key is used to track what the Slurm configuration key should be for
+        unique identifiers. Without this "protected" attribute, we would likely need
+        to write a custom parser for each data model. The generic model marshaller can
+        detect this attribute and marshal the model accordingly.
+        """
+        pass
+
+    @property
+    @abstractmethod
     def _callbacks(self) -> MappingProxyType:
         """Store callbacks.
 
