@@ -305,6 +305,9 @@ class DownNodesList(UserList):
     def __contains__(self, value):
         return value.dict() in self.data
 
+    def __iter__(self):
+        return iter([DownNodes(**data) for data in self.data])
+
     def __add__(self, other):
         if isinstance(other, DownNodesList):
             return self.__class__(self.data + other.data)
