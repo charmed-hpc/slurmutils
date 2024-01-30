@@ -14,7 +14,15 @@
 
 """Data models for the slurmdbd daemon."""
 
-from ._model import BaseModel, base_descriptors
+from types import MappingProxyType
+
+from ._model import (
+    BaseModel,
+    ColonSeparatorCallback,
+    CommaSeparatorCallback,
+    SlurmDictCallback,
+    base_descriptors,
+)
 
 
 class SlurmdbdConfig(BaseModel):
@@ -23,6 +31,20 @@ class SlurmdbdConfig(BaseModel):
     Top-level configuration definition and data validators sourced from
     the slurmdbd.conf manpage. `man slurmdbd.conf.5`
     """
+
+    _primary_key = None
+    _callbacks = MappingProxyType(
+        {
+            "auth_alt_types": CommaSeparatorCallback,
+            "auth_alt_parameters": SlurmDictCallback,
+            "communication_parameters": CommaSeparatorCallback,
+            "debug_flags": CommaSeparatorCallback,
+            "parameters": CommaSeparatorCallback,
+            "plugin_dir": ColonSeparatorCallback,
+            "private_data": CommaSeparatorCallback,
+            "storage_parameters": SlurmDictCallback,
+        }
+    )
 
     archive_dir = property(*base_descriptors("ArchiveDir"))
     archive_events = property(*base_descriptors("ArchiveEvents"))
