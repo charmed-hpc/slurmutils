@@ -78,7 +78,7 @@ class TestSlurmConfigEditor(unittest.TestCase):
         Path("slurm.conf").write_text(example_slurm_conf)
 
     def test_loads(self) -> None:
-        """Test `loads` method of slurmconfig module."""
+        """Test `loads` method of the slurmconfig module."""
         config = slurmconfig.loads(example_slurm_conf)
         self.assertListEqual(
             config.slurmctld_host, ["juju-c9fc6f-0(10.152.28.20)", "juju-c9fc6f-1(10.152.28.100)"]
@@ -115,13 +115,14 @@ class TestSlurmConfigEditor(unittest.TestCase):
         )
 
     def test_dumps(self) -> None:
-        """Test `dumps` method of slurmconfig module."""
+        """Test `dumps` method of the slurmconfig module."""
         config = slurmconfig.loads(example_slurm_conf)
-
+        # The new config and old config should not be equal since the
+        # timestamps in the header will be different.
         self.assertNotEqual(slurmconfig.dumps(config), example_slurm_conf)
 
     def test_edit(self) -> None:
-        """Test if SlurmConf can successfully edit the example configuration file."""
+        """Test `edit` context manager from the slurmconfig module."""
         with slurmconfig.edit("slurm.conf") as config:
             del config.inactive_limit
             config.max_job_count = 20000
