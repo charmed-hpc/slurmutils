@@ -170,7 +170,7 @@ included in the project:
     with a clear title and description against the `main` branch.
 
 **IMPORTANT**: By submitting a patch, improvement, or new feature, you agree to allow the maintainers of slurmutils to 
-license your contributions under the terms of the [Apache 2.0 license](./LICENSE), and you agree to sign
+license your contributions under the terms of the [GNU Lesser General Public License, v3.0](./LICENSE), and you agree to sign
 [Canonical's contributor license agreement](https://ubuntu.com/legal/contributors)
 
 ## Discussions
@@ -196,5 +196,5 @@ The following guidelines must be adhered to if you are writing code to be merged
 ## License & CLA
 
 By contributing your code to slurmutils, you agree to license your contribution under the 
-[Apache 2.0 license](https://www.apache.org/licenses/LICENSE-2.0.html), and you agree to
+[GNU Lesser General Public License, v3.0](./LICENSE), and you agree to
 sign [Canonical's contributor license agreement](https://ubuntu.com/legal/contributors).
