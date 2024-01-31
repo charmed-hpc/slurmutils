@@ -37,7 +37,7 @@ class SlurmdbdConfig(BaseModel):
         {
             "auth_alt_types": CommaSeparatorCallback,
             "auth_alt_parameters": SlurmDictCallback,
-            "communication_parameters": CommaSeparatorCallback,
+            "communication_parameters": SlurmDictCallback,
             "debug_flags": CommaSeparatorCallback,
             "parameters": CommaSeparatorCallback,
             "plugin_dir": ColonSeparatorCallback,
