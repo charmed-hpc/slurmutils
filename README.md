@@ -1,18 +1,29 @@
-<h1 align="center">
-  slurmutils
-</h1>
+<div align="center">
 
-<p align="center">
-  Utilities and APIs for interacting with the SLURM workload manager.
-</p>
+# slurmutils
+
+Utilities and APIs for interfacing with the Slurm workload manager.
+
+[![Matrix](https://img.shields.io/matrix/ubuntu-hpc%3Amatrix.org?logo=matrix&label=ubuntu-hpc)](https://matrix.to/#/#ubuntu-hpc:matrix.org)
+
+</div>
 
 ## Features
 
-* `slurmconf`: An API for performing CRUD operations on the SLURM configuration file _slurm.conf_
+`slurmutils` is a collection of various utilities and APIs to make it easier 
+for you and your friends to interface with the Slurm workload manager, especially if you 
+are orchestrating deployments of new and current Slurm clusters. Gone are the days of
+seething over incomplete Jinja2 templates. Current utilities and APIs shipped in the 
+`slurmutils` package include:
+
+#### `from slurmutils.editors import ...`
+
+* `slurmconfig`:  An editor _slurm.conf_ and _Include_ files.
+* `slurmdbdconfig`: An editor for _slurmdbd.conf_ files.
 
 ## Installation
 
-#### Option 1: PyPI
+#### Option 1: Install from PyPI
 
 ```shell
 $ python3 -m pip install slurmutils
@@ -20,45 +31,72 @@ $ python3 -m pip install slurmutils
 
 #### Option 2: Install from source
 
+We use the [Poetry](https://python-poetry.org) packaging and dependency manager to
+manage this project. It must be installed on your system if installing `slurmutils`
+from source.
+
 ```shell
 $ git clone https://github.com/canonical/slurmutils.git
 $ cd slurmutils
-$ python3 -m pip install .
+$ poetry install
 ```
 
 ## Usage
 
-#### `slurmconf`
+### Editors
 
-This module provides an API for performing CRUD operations on the SLURM configuration file _slurm.conf_.
-With this module, you can:
+#### `slurmconfig`
 
-##### Edit a pre-existing configuration
+This module provides an API for editing both _slurm.conf_ and _Include_ files,
+and can create new configuration files if they do not exist. Here's some common Slurm
+lifecycle management operators you can perform using this editor:
+
+##### Edit a pre-existing _slurm.conf_ configuration file
 
 ```python
-from slurmutils.slurmconf import SlurmConf
+from slurmutils.editors import slurmconfig
 
-with SlurmConf("/etc/slurm/slurm.conf") as conf:
-    del conf.inactive_limit
-    conf.max_job_count = 20000
-    conf.proctrack_type = "proctrack/linuxproc"
+# Open, edit, and save the slurm.conf file located at _/etc/slurm/slurm.conf_.
+with slurmconfig.edit("/etc/slurm/slurm.conf") as config:
+    del config.inactive_limit
+    config.max_job_count = 20000
+    config.proctrack_type = "proctrack/linuxproc"
 ```
 
-##### Add new nodes
+##### Add a new node to the _slurm.conf_ file
 
-```python3
-from slurmutils.slurmconf import Node, SlurmConf
+```python
+from slurmutils.editors import slurmconfig
+from slurmutils.models import Node
 
-with SlurmConf("/etc/slurm/slurm.conf") as conf:
-    node_name = "test-node"
-    node_conf = {
-        "NodeName": node_name,
-        "NodeAddr": "12.34.56.78",
-        "CPUs": 1, 
-        "RealMemory": 1000, 
-        "TmpDisk": 10000,
-    }
-    conf.nodes.update({node_name: Node(**node_conf)})
+with slurmconfig.edit("/etc/slurm/slurm.conf") as config:
+    node = Node(
+        NodeName="batch-[0-25]", 
+        NodeAddr="12.34.56.78", 
+        CPUs=1, 
+        RealMemory=1000, 
+        TmpDisk=10000,
+    )
+    config.nodes[node.node_name] = node
+```
+
+#### `slurmdbdconfig`
+
+This module provides and API for editing _slurmdbd.conf_ files, and can create new
+_slurmdbd.conf_ files if they do not exist. Here's some operations you can perform
+on the _slurmdbd.conf_ file using this editor:
+
+##### Edit a pre-existing _slurmdbd.conf_ configuration file
+
+```python
+from slurmutils.editors import slurmdbdconfig
+
+with slurmdbdconfig.edit("/etc/slurm/slurmdbd.conf") as config:
+    config.archive_usage = "yes"
+    config.log_file = "/var/spool/slurmdbd.log"
+    config.debug_flags = ["DB_EVENT", "DB_JOB", "DB_USAGE"]
+    del config.auth_alt_types
+    del config.auth_alt_parameters
 ```
 
 ## Project & Community
