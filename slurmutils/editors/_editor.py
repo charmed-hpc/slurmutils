@@ -161,7 +161,7 @@ def parse_model(line: str, pocket: Union[Dict, List], model) -> None:
         # Word in front of the first `=` denotes the parent configuration knob key.
         option, value = token.split("=", maxsplit=1)
         if hasattr(model, attr := _pascal2snake(option)):
-            if attr in model._callbacks and (callback := model._callbacks[attr].parse) is not None:
+            if attr in model.callbacks and (callback := model.callbacks[attr].parse) is not None:
                 holder.update({option: callback(value)})
             else:
                 holder.update({option: value})
@@ -195,7 +195,7 @@ def marshal_model(
         # rely on a mutable default in the function signature.
         ignore = set()
 
-    if primary_key := model._primary_key:
+    if primary_key := model.primary_key:
         attr = _pascal2snake(primary_key)
         primary_value = getattr(model, attr)
         data = {primary_key: primary_value, **model.dict()[primary_value]}
@@ -206,8 +206,8 @@ def marshal_model(
         if option not in ignore:
             if hasattr(model, attr := _pascal2snake(option)):
                 if (
-                    attr in model._callbacks
-                    and (callback := model._callbacks[attr].marshal) is not None
+                    attr in model.callbacks
+                    and (callback := model.callbacks[attr].marshal) is not None
                 ):
                     value = callback(value)
 
