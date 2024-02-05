@@ -32,8 +32,8 @@ class SlurmdbdConfig(BaseModel):
     the slurmdbd.conf manpage. `man slurmdbd.conf.5`
     """
 
-    _primary_key = None
-    _callbacks = MappingProxyType(
+    primary_key = None
+    callbacks = MappingProxyType(
         {
             "auth_alt_types": CommaSeparatorCallback,
             "auth_alt_parameters": SlurmDictCallback,

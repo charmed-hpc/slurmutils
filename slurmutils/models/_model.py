@@ -227,7 +227,7 @@ class BaseModel(ABC):
 
     @property
     @abstractmethod
-    def _primary_key(self) -> Optional[str]:
+    def primary_key(self) -> Optional[str]:
         """Primary key for data model.
 
         A primary key is required for data models that have a unique identifier
@@ -245,7 +245,7 @@ class BaseModel(ABC):
 
     @property
     @abstractmethod
-    def _callbacks(self) -> MappingProxyType:
+    def callbacks(self) -> MappingProxyType:
         """Store callbacks.
 
         This map will be queried during parsing and marshalling to determine if

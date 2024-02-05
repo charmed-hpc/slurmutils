@@ -49,8 +49,8 @@ class Node(BaseModel):
         super().__init__()
         self._register.update({kwargs.pop("NodeName"): {**kwargs}})
 
-    _primary_key = "NodeName"
-    _callbacks = MappingProxyType(
+    primary_key = "NodeName"
+    callbacks = MappingProxyType(
         {
             "cpu_spec_list": CommaSeparatorCallback,
             "features": CommaSeparatorCallback,
@@ -91,8 +91,8 @@ class DownNodes(BaseModel):
     the slurm.conf manpage. `man slurm.conf.5`
     """
 
-    _primary_key = None
-    _callbacks = MappingProxyType(
+    primary_key = None
+    callbacks = MappingProxyType(
         {
             "down_nodes": CommaSeparatorCallback,
             "reason": ReasonCallback,
@@ -115,8 +115,8 @@ class FrontendNode(BaseModel):
         super().__init__()
         self._register.update({kwargs.pop("FrontendName"): {**kwargs}})
 
-    _primary_key = "FrontendName"
-    _callbacks = MappingProxyType(
+    primary_key = "FrontendName"
+    callbacks = MappingProxyType(
         {
             "allow_groups": CommaSeparatorCallback,
             "allow_users": CommaSeparatorCallback,
@@ -148,8 +148,8 @@ class NodeSet(BaseModel):
         super().__init__()
         self._register.update({kwargs.pop("NodeSet"): {**kwargs}})
 
-    _primary_key = "NodeSet"
-    _callbacks = MappingProxyType({"nodes": CommaSeparatorCallback})
+    primary_key = "NodeSet"
+    callbacks = MappingProxyType({"nodes": CommaSeparatorCallback})
 
     node_set = property(*primary_key_descriptors())
     feature = property(*_nodeset_descriptors("Feature"))
@@ -167,8 +167,8 @@ class Partition(BaseModel):
         super().__init__()
         self._register.update({kwargs.pop("PartitionName"): {**kwargs}})
 
-    _primary_key = "PartitionName"
-    _callbacks = MappingProxyType(
+    primary_key = "PartitionName"
+    callbacks = MappingProxyType(
         {
             "alloc_nodes": CommaSeparatorCallback,
             "allow_accounts": CommaSeparatorCallback,
@@ -465,8 +465,8 @@ class SlurmConfig(BaseModel):
     the slurm.conf manpage. `man slurm.conf.5`
     """
 
-    _primary_key = None
-    _callbacks = MappingProxyType(
+    primary_key = None
+    callbacks = MappingProxyType(
         {
             "acct_storage_external_host": CommaSeparatorCallback,
             "acct_storage_param": SlurmDictCallback,
