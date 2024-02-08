@@ -220,10 +220,12 @@ class BaseModel(ABC):
         self._register = kwargs
 
     def __repr__(self):
-        return (
-            f"{self.__class__.__name__}"
-            f"({', '.join(f'{k}={v}' for k, v in self._register.items())})"
-        )
+        output = self._register
+        if self.primary_key:
+            key = list(self._register.keys())[0]
+            output = {self.primary_key: key, **self._register[key]}
+
+        return f"{self.__class__.__name__}({', '.join(f'{k}={v}' for k, v in output.items())})"
 
     @property
     @abstractmethod
