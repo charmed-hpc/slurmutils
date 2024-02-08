@@ -14,5 +14,17 @@
 
 """Data models for common Slurm objects."""
 
-from .slurm import DownNodes, FrontendNode, Node, NodeSet, Partition, SlurmConfig
+from .slurm import (
+    DownNodes,
+    FrontendNode,
+    Node,
+    NodeSet,
+    Partition,
+    SlurmConfig,
+    NodeMap,
+    FrontendNodeMap,
+    DownNodesList,
+    NodeSetMap,
+    PartitionMap,
+)
 from .slurmdbd import SlurmdbdConfig
