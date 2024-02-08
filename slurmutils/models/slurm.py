@@ -18,7 +18,7 @@ import functools
 from collections import UserList
 from collections.abc import MutableMapping
 from types import MappingProxyType
-from typing import Any, Dict
+from typing import Any, Dict, Optional
 
 from ._model import (
     BaseModel,
@@ -229,63 +229,67 @@ class Partition(BaseModel):
 class NodeMap(MutableMapping):
     """Map of Node names to dictionaries for composing `Node` objects."""
 
-    def __init__(self, data: Dict[str, Dict[str, Any]]):
-        self._register = data
+    def __init__(self, data: Optional[Dict[str, Dict[str, Any]]] = None):
+        if data is None:
+            data = {}
+
+        self.data = data
 
     @assert_type(value=Node)
     def __setitem__(self, key: str, value: Node) -> None:
         if key != value.node_name:
             raise ValueError(f"{key} and {value.node_name} are not equal.")
         else:
-            self._register.update(value.dict())
+            self.data.update(value.dict())
 
     def __delitem__(self, key: str) -> None:
-        del self._register[key]
+        del self.data[key]
 
     def __getitem__(self, key: str) -> Node:
         try:
-            node = self._register.get(key)
+            node = self.data.get(key)
             return Node(NodeName=key, **node)
         except KeyError:
             raise KeyError(f"Node {key} is not defined.")
 
     def __len__(self):
-        return len(self._register)
+        return len(self.data)
 
     def __iter__(self):
-        return iter([Node(NodeName=k, **self._register[k]) for k in self._register.keys()])
+        return iter([Node(NodeName=k, **self.data[k]) for k in self.data.keys()])
 
 
 class FrontendNodeMap(MutableMapping):
     """Map of FrontendNode names to dictionaries for composing `FrontendNode` objects."""
 
-    def __init__(self, data: Dict[str, Dict[str, Any]]):
-        self._register = data
+    def __init__(self, data: Optional[Dict[str, Dict[str, Any]]] = None):
+        if data is None:
+            data = {}
+
+        self.data = data
 
     @assert_type(value=FrontendNode)
     def __setitem__(self, key: str, value: FrontendNode) -> None:
         if key != value.frontend_name:
             raise ValueError(f"{key} and {value.frontend_name} are not equal.")
         else:
-            self._register.update(value.dict())
+            self.data.update(value.dict())
 
     def __delitem__(self, key: str) -> None:
-        del self._register[key]
+        del self.data[key]
 
     def __getitem__(self, key: str) -> FrontendNode:
         try:
-            frontend_node = self._register.get(key)
+            frontend_node = self.data.get(key)
             return FrontendNode(FrontendName=key, **frontend_node)
         except KeyError:
             raise KeyError(f"FrontendNode {key} is not defined.")
 
     def __len__(self):
-        return len(self._register)
+        return len(self.data)
 
     def __iter__(self):
-        return iter(
-            [FrontendNode(FrontendName=k, **self._register[k]) for k in self._register.keys()]
-        )
+        return iter([FrontendNode(FrontendName=k, **self.data[k]) for k in self.data.keys()])
 
 
 class DownNodesList(UserList):
@@ -390,59 +394,61 @@ class DownNodesList(UserList):
                 if not isinstance(down_node, DownNodes):
                     raise TypeError(f"{down_node} is not {type(DownNodes)}.")
 
-            self.data.extend(other)
+            self.data.extend([v.dict() for v in other])
 
 
 class NodeSetMap(MutableMapping):
     """Map of NodeSet names to dictionaries for composing `NodeSet` objects."""
 
-    def __init__(self, data: Dict[str, Dict[str, Any]]):
-        self._register = data
+    def __init__(self, data: Optional[Dict[str, Dict[str, Any]]] = None):
+        if data is None:
+            data = {}
+        self.data = data
 
     @assert_type(value=NodeSet)
     def __setitem__(self, key: str, value: NodeSet) -> None:
         if key != value.node_set:
             raise ValueError(f"{key} and {value.node_set} are not equal.")
         else:
-            self._register.update(value.dict())
+            self.data.update(value.dict())
 
     def __delitem__(self, key: str) -> None:
-        del self._register[key]
+        del self.data[key]
 
     def __getitem__(self, key: str) -> NodeSet:
         try:
-            node_set = self._register.get(key)
+            node_set = self.data.get(key)
             return NodeSet(NodeSet=key, **node_set)
         except KeyError:
             raise KeyError(f"NodeSet {key} is not defined.")
 
     def __len__(self):
-        return len(self._register)
+        return len(self.data)
 
     def __iter__(self):
-        return iter([NodeSet(NodeSet=k, **self._register[k]) for k in self._register.keys()])
+        return iter([NodeSet(NodeSet=k, **self.data[k]) for k in self.data.keys()])
 
 
 class PartitionMap(MutableMapping):
     """Map of Partition names to dictionaries for composing `Partition` objects."""
 
-    def __init__(self, data: Dict[str, Dict[str, Any]]):
-        self._register = data
+    def __init__(self, data: Optional[Dict[str, Dict[str, Any]]] = None):
+        if data is None:
+            data = {}
+        self.data = data
 
     def __contains__(self, key: str):
-        return key in self._register
+        return key in self.data
 
     def __len__(self):
-        return len(self._register)
+        return len(self.data)
 
     def __iter__(self):
-        return iter(
-            [Partition(PartitionName=k, **self._register[k]) for k in self._register.keys()]
-        )
+        return iter([Partition(PartitionName=k, **self.data[k]) for k in self.data.keys()])
 
     def __getitem__(self, key: str) -> Partition:
         try:
-            partition = self._register.get(key)
+            partition = self.data.get(key)
             return Partition(PartitionName=key, **partition)
         except KeyError:
             raise KeyError(f"Partition {key} is not defined.")
@@ -452,10 +458,10 @@ class PartitionMap(MutableMapping):
         if key != value.partition_name:
             raise ValueError(f"{key} and {value.partition_name} are not equal.")
         else:
-            self._register.update(value.dict())
+            self.data.update(value.dict())
 
     def __delitem__(self, key: str) -> None:
-        del self._register[key]
+        del self.data[key]
 
 
 class SlurmConfig(BaseModel):
@@ -720,25 +726,95 @@ class SlurmConfig(BaseModel):
 
     @property
     def nodes(self) -> NodeMap:
-        """Get the current nodes in the Slurm configuration."""
+        """Get all nodes in the current Slurm configuration."""
         return NodeMap(self._register["nodes"])
+
+    @nodes.setter
+    @assert_type(value=NodeMap)
+    def nodes(self, value: NodeMap) -> None:
+        """Set new nodes in the current Slurm configuration.
+
+        Will overwrite any pre-existing nodes in the current configuration.
+        """
+        self._register["nodes"] = value.data
+
+    @nodes.deleter
+    def nodes(self) -> None:
+        """Delete all nodes from the current Slurm configuration."""
+        self._register["nodes"] = {}
 
     @property
     def frontend_nodes(self) -> FrontendNodeMap:
-        """Get the current frontend nodes in the Slurm configuration."""
+        """Get all frontend nodes in the current Slurm configuration."""
         return FrontendNodeMap(self._register["frontend_nodes"])
+
+    @frontend_nodes.setter
+    @assert_type(value=FrontendNodeMap)
+    def frontend_nodes(self, value: FrontendNodeMap) -> None:
+        """Set new frontend nodes in the current Slurm configuration.
+
+        Will overwrite any pre-existing frontend nodes in the current configuration.
+        """
+        self._register["frontend_nodes"] = value.data
+
+    @frontend_nodes.deleter
+    def frontend_nodes(self) -> None:
+        """Delete all frontend nodes from the current Slurm configuration."""
+        self._register["frontend_nodes"] = {}
 
     @property
     def down_nodes(self) -> DownNodesList:
-        """Get the current down nodes in the Slurm configuration."""
+        """Get all down nodes in the current Slurm configuration."""
         return DownNodesList(self._register["down_nodes"])
+
+    @down_nodes.setter
+    @assert_type(value=DownNodesList)
+    def down_nodes(self, value: DownNodesList) -> None:
+        """Set new down nodes in the current Slurm configuration.
+
+        Will overwrite any pre-existing down nodes in the current configuration.
+        """
+        self._register["down_nodes"] = value.data
+
+    @down_nodes.deleter
+    def down_nodes(self) -> None:
+        """Delete all down nodes from the current Slurm configuration."""
+        self._register["down_nodes"] = []
 
     @property
     def node_sets(self) -> NodeSetMap:
-        """Get the current node sets in the Slurm configuration."""
+        """Get all node sets in the current Slurm configuration."""
         return NodeSetMap(self._register["node_sets"])
+
+    @node_sets.setter
+    @assert_type(value=NodeSetMap)
+    def node_sets(self, value: NodeSetMap) -> None:
+        """Set new node sets in the current Slurm configuration.
+
+        Will overwrite any pre-existing node sets in the current configuration.
+        """
+        self._register["node_sets"] = value.data
+
+    @node_sets.deleter
+    def node_sets(self) -> None:
+        """Delete all node sets from the current Slurm configuration."""
+        self._register["node_sets"] = {}
 
     @property
     def partitions(self) -> PartitionMap:
-        """Get the current partitions in the Slurm configuration."""
+        """Get all partitions in the current Slurm configuration."""
         return PartitionMap(self._register["partitions"])
+
+    @partitions.setter
+    @assert_type(value=PartitionMap)
+    def partitions(self, value: PartitionMap) -> None:
+        """Set new partitions in the current Slurm configuration.
+
+        Will overwrite any pre-existing partitions in the current configuration.
+        """
+        self._register["partitions"] = value.data
+
+    @partitions.deleter
+    def partitions(self) -> None:
+        """Delete all partitions from the current Slurm configuration."""
+        self._register["partitions"] = {}
