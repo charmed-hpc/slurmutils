@@ -85,8 +85,8 @@ def _parse(content: str) -> SlurmdbdConfig:
     data = {}
     lines = content.splitlines()
     for index, line in enumerate(lines):
-        config, ignore = clean(line)
-        if ignore:
+        config = clean(line)
+        if config is None:
             _logger.debug("ignoring line %s at index %s in slurmdbd.conf", line, index)
             continue
 
