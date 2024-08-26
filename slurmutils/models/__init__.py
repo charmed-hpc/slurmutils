@@ -21,10 +21,5 @@ from .slurm import (
     NodeSet,
     Partition,
     SlurmConfig,
-    NodeMap,
-    FrontendNodeMap,
-    DownNodesList,
-    NodeSetMap,
-    PartitionMap,
 )
 from .slurmdbd import SlurmdbdConfig
