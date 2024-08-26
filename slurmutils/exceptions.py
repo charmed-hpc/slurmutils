@@ -15,5 +15,18 @@
 """Exceptions raised by Slurm utilities in this package."""
 
 
-class EditorError(Exception):
+class BaseError(Exception):
+    """Base exception for errors in `slurmutils` module."""
+
+    @property
+    def message(self) -> str:
+        """Return message passed as argument to exception."""
+        return self.args[0]
+
+
+class EditorError(BaseError):
     """Raise when a Slurm configuration editor encounters an error."""
+
+
+class ModelError(BaseError):
+    """Raise when a Slurm configuration model encounters an error."""
