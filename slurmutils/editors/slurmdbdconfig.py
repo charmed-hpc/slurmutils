@@ -16,74 +16,91 @@
 
 __all__ = ["dump", "dumps", "load", "loads", "edit"]
 
-import functools
+import logging
 import os
-from collections import deque
 from contextlib import contextmanager
-from datetime import datetime
+from pathlib import Path
 from typing import Union
 
 from slurmutils.models import SlurmdbdConfig
 
-from ._editor import (
+from ..models.option import SlurmdbdConfigOptions
+from .editor import (
     clean,
-    dump_base,
-    dumps_base,
-    header,
-    load_base,
-    loads_base,
-    marshal_model,
-    parse_model,
+    dumper,
+    loader,
+    marshall_content,
+    parse_line,
 )
 
-
-def _marshaller(config: SlurmdbdConfig) -> str:
-    """Marshal Python object into slurmdbd.conf configuration file.
-
-    Args:
-        config: `SlurmdbdConfig` object to convert to slurmdbd.conf configuration file.
-    """
-    marshalled = [header(f"`slurmdbd.conf` file generated at {datetime.now()} by slurmutils.")]
-    marshalled.extend(marshal_model(config))
-
-    return "".join(marshalled)
+_logger = logging.getLogger("slurmutils")
 
 
-def _parser(config: str) -> SlurmdbdConfig:
-    """Parse slurmdbd.conf configuration file into Python object.
-
-    Args:
-        config: Content of slurmdbd.conf configuration file.
-    """
-    slurmdbd_conf = {}
-
-    config = clean(deque(config.splitlines()))
-    while config:
-        line = config.popleft()
-        parse_model(line, pocket=slurmdbd_conf, model=SlurmdbdConfig)
-
-    return SlurmdbdConfig(**slurmdbd_conf)
+@loader
+def load(file: Union[str, os.PathLike]) -> SlurmdbdConfig:
+    """Load `slurm.conf` data model from slurm.conf file."""
+    return loads(Path(file).read_text())
 
 
-dump = functools.partial(dump_base, marshaller=_marshaller)
-dumps = functools.partial(dumps_base, marshaller=_marshaller)
-load = functools.partial(load_base, parser=_parser)
-loads = functools.partial(loads_base, parser=_parser)
+def loads(content: str) -> SlurmdbdConfig:
+    """Load `slurm.conf` data model from string."""
+    return _parse(content)
+
+
+@dumper
+def dump(config: SlurmdbdConfig, file: Union[str, os.PathLike]) -> None:
+    """Dump `slurm.conf` data model into slurm.conf file."""
+    Path(file).write_text(dumps(config))
+
+
+def dumps(config: SlurmdbdConfig) -> str:
+    """Dump `slurm.conf` data model into a string."""
+    return _marshall(config)
 
 
 @contextmanager
 def edit(file: Union[str, os.PathLike]) -> SlurmdbdConfig:
-    """Edit a slurmdbd.conf file.
+    """Edit a slurm.conf file.
 
     Args:
-        file: Path to slurmdbd.conf file to edit. If slurmdbd.conf does
+        file: Path to slurm.conf file to edit. If slurm.conf does
             not exist at the specified file path, it will be created.
     """
     if not os.path.exists(file):
-        # Create an empty SlurmConfig that can be populated.
+        _logger.warning("file %s not found. creating new empty slurmdbd.conf configuration", file)
         config = SlurmdbdConfig()
     else:
-        config = load(file=file)
+        config = load(file)
 
     yield config
-    dump(content=config, file=file)
+    dump(config, file)
+
+
+def _parse(content: str) -> SlurmdbdConfig:
+    """Parse contents of `slurmdbd.conf`.
+
+    Args:
+        content: Contents of `slurmdbd.conf`.
+    """
+    data = {}
+    lines = content.splitlines()
+    for index, line in enumerate(lines):
+        config, ignore = clean(line)
+        if ignore:
+            _logger.debug("ignoring line %s at index %s in slurmdbd.conf", line, index)
+            continue
+
+        data.update(parse_line(SlurmdbdConfigOptions, config))
+
+    return SlurmdbdConfig.from_dict(data)
+
+
+def _marshall(config: SlurmdbdConfig) -> str:
+    """Marshall `slurmdbd.conf` data model back into slurmdbd.conf format.
+
+    Args:
+        config: `slurmdbd.conf` data model to marshall.
+    """
+    result = []
+    result.extend(marshall_content(SlurmdbdConfigOptions, config.dict()))
+    return "\n".join(result)

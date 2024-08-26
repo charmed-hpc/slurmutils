@@ -16,155 +16,45 @@
 
 __all__ = ["dump", "dumps", "load", "loads", "edit"]
 
-import functools
+import logging
 import os
-from collections import deque
 from contextlib import contextmanager
-from datetime import datetime
+from pathlib import Path
 from typing import Union
 
-from slurmutils.models import DownNodes, FrontendNode, Node, NodeSet, Partition, SlurmConfig
-
-from ._editor import (
+from ..models import DownNodes, FrontendNode, Node, NodeSet, Partition, SlurmConfig
+from ..models.option import SlurmConfigOptions
+from .editor import (
     clean,
-    dump_base,
-    dumps_base,
-    header,
-    load_base,
-    loads_base,
-    marshal_model,
-    parse_model,
-    parse_repeating_config,
+    dumper,
+    loader,
+    marshall_content,
+    parse_line,
 )
 
-
-def _marshaller(config: SlurmConfig) -> str:
-    """Marshal Python object into slurm.conf configuration file.
-
-    Args:
-        config: `SlurmConfig` object to convert to slurm.conf configuration file.
-    """
-    marshalled = [header(f"`slurm.conf` file generated at {datetime.now()} by slurmutils.")]
-
-    if config.include:
-        marshalled.append(header("Included configuration files"))
-        marshalled.extend([f"Include {i}\n" for i in config.include] + ["\n"])
-    if config.slurmctld_host:
-        marshalled.extend([f"SlurmctldHost={host}\n" for host in config.slurmctld_host] + ["\n"])
-
-    # Marshal the SlurmConfig object into Slurm configuration format.
-    # Ignore pockets containing child models as they will be marshalled inline.
-    marshalled.extend(
-        marshal_model(
-            config,
-            ignore={
-                "Includes",
-                "SlurmctldHost",
-                "nodes",
-                "frontend_nodes",
-                "down_nodes",
-                "node_sets",
-                "partitions",
-            },
-        )
-        + ["\n"]
-    )
-
-    if len(config.nodes) != 0:
-        marshalled.extend(
-            [header("Node configurations")]
-            + [marshal_model(node, inline=True) for node in config.nodes]
-            + ["\n"]
-        )
-
-    if len(config.frontend_nodes) != 0:
-        marshalled.extend(
-            [header("Frontend node configurations")]
-            + [marshal_model(frontend, inline=True) for frontend in config.frontend_nodes]
-            + ["\n"]
-        )
-
-    if len(config.down_nodes) != 0:
-        marshalled.extend(
-            [header("Down node configurations")]
-            + [marshal_model(down_node, inline=True) for down_node in config.down_nodes]
-            + ["\n"]
-        )
-
-    if len(config.node_sets) != 0:
-        marshalled.extend(
-            [header("Node set configurations")]
-            + [marshal_model(node_set, inline=True) for node_set in config.node_sets]
-            + ["\n"]
-        )
-
-    if len(config.partitions) != 0:
-        marshalled.extend(
-            [header("Partition configurations")]
-            + [marshal_model(part, inline=True) for part in config.partitions]
-        )
-
-    return "".join(marshalled)
+_logger = logging.getLogger("slurmutils")
 
 
-def _parser(config: str) -> SlurmConfig:
-    """Parse slurm.conf configuration file into Python object.
-
-    Args:
-        config: Content of slurm.conf configuration file.
-    """
-    slurm_conf = {}
-    nodes = {}
-    frontend_nodes = {}
-    down_nodes = []
-    node_sets = {}
-    partitions = {}
-
-    config = clean(deque(config.splitlines()))
-    while config:
-        line = config.popleft()
-        # slurm.conf `Include` is the only configuration knob whose
-        # separator is whitespace rather than `=`.
-        if line.startswith("Include"):
-            option, value = line.split(maxsplit=1)
-            parse_repeating_config(option, value, pocket=slurm_conf)
-
-        # `SlurmctldHost` is the same as `Include` where it can
-        # be specified on multiple lines.
-        elif line.startswith("SlurmctldHost"):
-            option, value = line.split("=", 1)
-            parse_repeating_config(option, value, pocket=slurm_conf)
-
-        # Check if option maps to slurm.conf data model. If so, invoke parsing
-        # rules for that specific data model and enter its parsed information
-        # into the appropriate pocket.
-        elif line.startswith("NodeName"):
-            parse_model(line, pocket=nodes, model=Node)
-        elif line.startswith("FrontendNode"):
-            parse_model(line, pocket=frontend_nodes, model=FrontendNode)
-        elif line.startswith("DownNodes"):
-            parse_model(line, pocket=down_nodes, model=DownNodes)
-        elif line.startswith("NodeSet"):
-            parse_model(line, pocket=node_sets, model=NodeSet)
-        elif line.startswith("PartitionName"):
-            parse_model(line, pocket=partitions, model=Partition)
-        else:
-            parse_model(line, pocket=slurm_conf, model=SlurmConfig)
-
-    return SlurmConfig(
-        **slurm_conf,
-        nodes=nodes,
-        frontend_nodes=frontend_nodes,
-        down_nodes=down_nodes,
-        node_sets=node_sets,
-        partitions=partitions,
-    )
+@loader
+def load(file: Union[str, os.PathLike]) -> SlurmConfig:
+    """Load `slurm.conf` data model from slurm.conf file."""
+    return loads(Path(file).read_text())
 
 
-dump = functools.partial(dump_base, marshaller=_marshaller)
-dumps = functools.partial(dumps_base, marshaller=_marshaller)
-load = functools.partial(load_base, parser=_parser)
-loads = functools.partial(loads_base, parser=_parser)
+def loads(content: str) -> SlurmConfig:
+    """Load `slurm.conf` data model from string."""
+    return _parse(content)
+
+
+@dumper
+def dump(config: SlurmConfig, file: Union[str, os.PathLike]) -> None:
+    """Dump `slurm.conf` data model into slurm.conf file."""
+    Path(file).write_text(dumps(config))
+
+
+def dumps(config: SlurmConfig) -> str:
+    """Dump `slurm.conf` data model into a string."""
+    return _marshall(config)
 
 
 @contextmanager
@@ -176,10 +66,101 @@ def edit(file: Union[str, os.PathLike]) -> SlurmConfig:
             not exist at the specified file path, it will be created.
     """
     if not os.path.exists(file):
-        # Create an empty SlurmConfig that can be populated.
+        _logger.warning("file %s not found. creating new empty slurm.conf configuration", file)
         config = SlurmConfig()
     else:
-        config = load(file=file)
+        config = load(file)
 
     yield config
-    dump(content=config, file=file)
+    dump(config, file)
+
+
+def _parse(content: str) -> SlurmConfig:
+    """Parse contents of `slurm.conf`.
+
+    Args:
+        content: Contents of `slurm.conf`.
+    """
+    data = {}
+    lines = content.splitlines()
+    for index, line in enumerate(lines):
+        config, ignore = clean(line)
+        if ignore:
+            _logger.warning("ignoring line %s at index %s in slurm.conf", line, index)
+            continue
+
+        if config.startswith("Include"):
+            _, v = config.split(maxsplit=1)
+            data["Include"] = data.get("Include", []) + [v]
+        elif config.startswith("SlurmctldHost"):
+            _, v = config.split("=", maxsplit=1)
+            data["SlurmctldHost"] = data.get("SlurmctldHost", []) + [v]
+        elif config.startswith("NodeName"):
+            nodes = data.get("Nodes", {})
+            nodes.update(Node.from_str(config).dict())
+            data["Nodes"] = nodes
+        elif config.startswith("DownNodes"):
+            data["DownNodes"] = data.get("DownNodes", []) + [DownNodes.from_str(config).dict()]
+        elif config.startswith("FrontendNode"):
+            frontend_nodes = data.get("FrontendNodes", {})
+            frontend_nodes.update(FrontendNode.from_str(config).dict())
+            data["FrontendNodes"] = frontend_nodes
+        elif config.startswith("NodeSet"):
+            node_sets = data.get("NodeSets", {})
+            node_sets.update(NodeSet.from_str(config).dict())
+            data["NodeSets"] = node_sets
+        elif config.startswith("PartitionName"):
+            partitions = data.get("Partitions", {})
+            partitions.update(Partition.from_str(config).dict())
+            data["Partitions"] = partitions
+        else:
+            data.update(parse_line(SlurmConfigOptions, config))
+
+    return SlurmConfig.from_dict(data)
+
+
+def _marshall(config: SlurmConfig) -> str:
+    """Marshall `slurm.conf` data model back into slurm.conf format.
+
+    Args:
+        config: `slurm.conf` data model to marshall.
+    """
+    result = []
+    data = config.dict()
+    include = data.pop("Include", None)
+    slurmctld_host = data.pop("SlurmctldHost", None)
+    nodes = data.pop("Nodes", {})
+    down_nodes = data.pop("DownNodes", [])
+    frontend_nodes = data.pop("FrontendNodes", {})
+    node_sets = data.pop("NodeSets", {})
+    partitions = data.pop("Partitions", {})
+
+    if include:
+        result.extend([f"Include {i}" for i in include])
+
+    if slurmctld_host:
+        result.extend([f"SlurmctldHost={host}" for host in slurmctld_host])
+
+    result.extend(marshall_content(SlurmConfigOptions, data))
+
+    if nodes:
+        for k, v in nodes.items():
+            result.append(str(Node(NodeName=k, **v)))
+
+    if down_nodes:
+        for entry in down_nodes:
+            result.append(str(DownNodes(**entry)))
+
+    if frontend_nodes:
+        for k, v in frontend_nodes.items():
+            result.append(str(FrontendNode(FrontendName=k, **v)))
+
+    if node_sets:
+        for k, v in node_sets.items():
+            result.append(str(NodeSet(NodeSet=k, **v)))
+
+    if partitions:
+        for k, v in partitions.items():
+            result.append(str(Partition(PartitionName=k, **v)))
+
+    return "\n".join(result)
