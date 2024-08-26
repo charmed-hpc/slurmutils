@@ -24,7 +24,7 @@ __all__ = [
 ]
 
 import copy
-from typing import Any, Dict, List
+from typing import Any, Dict, List, Optional
 
 from ..editors.editor import marshall_content, parse_line
 from .model import BaseModel, LineInterface, format_key, generate_descriptors
@@ -221,11 +221,11 @@ class SlurmConfig(BaseModel):
     def __init__(
         self,
         *,
-        Nodes: Dict[str, Any] = None,  # noqa N803
-        DownNodes: List[Dict[str, Any]] = None,  # noqa N803
-        FrontendNodes: Dict[str, Any] = None,  # noqa N803
-        NodeSets: Dict[str, Any] = None,  # noqa N803
-        Partitions: Dict[str, Any] = None,  # noqa N803
+        Nodes: Optional[Dict[str, Any]] = None,  # noqa N803
+        DownNodes: Optional[List[Dict[str, Any]]] = None,  # noqa N803
+        FrontendNodes: Optional[Dict[str, Any]] = None,  # noqa N803
+        NodeSets: Optional[Dict[str, Any]] = None,  # noqa N803
+        Partitions: Optional[Dict[str, Any]] = None,  # noqa N803
         **kwargs,
     ) -> None:
         super().__init__(SlurmConfigOptionSet, **kwargs)
