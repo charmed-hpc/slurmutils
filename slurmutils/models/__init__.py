@@ -14,12 +14,10 @@
 
 """Data models for common Slurm objects."""
 
-from .slurm import (
-    DownNodes,
-    FrontendNode,
-    Node,
-    NodeSet,
-    Partition,
-    SlurmConfig,
-)
-from .slurmdbd import SlurmdbdConfig
+from .slurm import DownNodes as DownNodes
+from .slurm import FrontendNode as FrontendNode
+from .slurm import Node as Node
+from .slurm import NodeSet as NodeSet
+from .slurm import Partition as Partition
+from .slurm import SlurmConfig as SlurmConfig
+from .slurmdbd import SlurmdbdConfig as SlurmdbdConfig

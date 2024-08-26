@@ -14,5 +14,5 @@
 
 """Editors for Slurm workload manager configuration files."""
 
-from . import slurmconfig
-from . import slurmdbdconfig
+from . import slurmconfig as slurmconfig
+from . import slurmdbdconfig as slurmdbdconfig

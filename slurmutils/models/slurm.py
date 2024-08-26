@@ -14,6 +14,15 @@
 
 """Data models for `slurm.conf` configuration file."""
 
+__all__ = [
+    "Node",
+    "DownNodes",
+    "FrontendNode",
+    "NodeSet",
+    "Partition",
+    "SlurmConfig",
+]
+
 import copy
 from typing import Any, Dict, List
 
