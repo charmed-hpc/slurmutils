@@ -24,7 +24,7 @@ from typing import Union
 
 from slurmutils.models import SlurmdbdConfig
 
-from ..models.option import SlurmdbdConfigOptions
+from ..models.option import SlurmdbdConfigOptionSet
 from .editor import (
     clean,
     dumper,
@@ -90,7 +90,7 @@ def _parse(content: str) -> SlurmdbdConfig:
             _logger.debug("ignoring line %s at index %s in slurmdbd.conf", line, index)
             continue
 
-        data.update(parse_line(SlurmdbdConfigOptions, config))
+        data.update(parse_line(SlurmdbdConfigOptionSet, config))
 
     return SlurmdbdConfig.from_dict(data)
 
@@ -102,5 +102,5 @@ def _marshall(config: SlurmdbdConfig) -> str:
         config: `slurmdbd.conf` data model to marshall.
     """
     result = []
-    result.extend(marshall_content(SlurmdbdConfigOptions, config.dict()))
+    result.extend(marshall_content(SlurmdbdConfigOptionSet, config.dict()))
     return "\n".join(result)

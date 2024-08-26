@@ -29,12 +29,12 @@ from typing import Any, Dict, List
 from ..editors.editor import marshall_content, parse_line
 from .model import BaseModel, LineInterface, format_key, generate_descriptors
 from .option import (
-    DownNodeOptions,
-    FrontendNodeOptions,
-    NodeOptions,
-    NodeSetOptions,
-    PartitionOptions,
-    SlurmConfigOptions,
+    DownNodeOptionSet,
+    FrontendNodeOptionSet,
+    NodeOptionSet,
+    NodeSetOptionSet,
+    PartitionOptionSet,
+    SlurmConfigOptionSet,
 )
 
 
@@ -43,7 +43,7 @@ class Node(BaseModel, LineInterface):
 
     def __init__(self, *, NodeName: str, **kwargs) -> None:  # noqa N803
         self.__node_name = NodeName
-        super().__init__(NodeOptions, **kwargs)
+        super().__init__(NodeOptionSet, **kwargs)
 
     @property
     def node_name(self) -> str:
@@ -64,7 +64,7 @@ class Node(BaseModel, LineInterface):
     @classmethod
     def from_str(cls, line: str) -> "Node":
         """Construct model from configuration line."""
-        data = parse_line(NodeOptions, line)
+        data = parse_line(NodeOptionSet, line)
         return cls(**data)
 
     def dict(self) -> Dict[str, Any]:
@@ -74,7 +74,7 @@ class Node(BaseModel, LineInterface):
     def __str__(self) -> str:
         """Return model as configuration line."""
         line = [f"NodeName={self.__node_name}"]
-        line.extend(marshall_content(NodeOptions, self.data))
+        line.extend(marshall_content(NodeOptionSet, self.data))
         return " ".join(line)
 
 
@@ -82,17 +82,17 @@ class DownNodes(BaseModel, LineInterface):
     """`DownNodes` data model."""
 
     def __init__(self, **kwargs):
-        super().__init__(DownNodeOptions, **kwargs)
+        super().__init__(DownNodeOptionSet, **kwargs)
 
     @classmethod
     def from_str(cls, line: str) -> "DownNodes":
         """Construct model from configuration line."""
-        data = parse_line(DownNodeOptions, line)
+        data = parse_line(DownNodeOptionSet, line)
         return cls(**data)
 
     def __str__(self) -> str:
         """Return model as configuration line."""
-        return " ".join(marshall_content(DownNodeOptions, self.data))
+        return " ".join(marshall_content(DownNodeOptionSet, self.data))
 
 
 class FrontendNode(BaseModel, LineInterface):
@@ -100,7 +100,7 @@ class FrontendNode(BaseModel, LineInterface):
 
     def __init__(self, *, FrontendName: str, **kwargs) -> None:  # noqa N803
         self.__frontend_name = FrontendName
-        super().__init__(FrontendNodeOptions, **kwargs)
+        super().__init__(FrontendNodeOptionSet, **kwargs)
 
     @property
     def frontend_name(self) -> str:
@@ -121,7 +121,7 @@ class FrontendNode(BaseModel, LineInterface):
     @classmethod
     def from_str(cls, line: str) -> "FrontendNode":
         """Construct model from configuration line."""
-        data = parse_line(FrontendNodeOptions, line)
+        data = parse_line(FrontendNodeOptionSet, line)
         return cls(**data)
 
     def dict(self) -> Dict[str, Any]:
@@ -131,7 +131,7 @@ class FrontendNode(BaseModel, LineInterface):
     def __str__(self) -> str:
         """Return model as configuration line."""
         line = [f"FrontendName={self.__frontend_name}"]
-        line.extend(marshall_content(FrontendNodeOptions, self.data))
+        line.extend(marshall_content(FrontendNodeOptionSet, self.data))
         return " ".join(line)
 
 
@@ -140,7 +140,7 @@ class NodeSet(BaseModel, LineInterface):
 
     def __init__(self, *, NodeSet: str, **kwargs) -> None:  # noqa N803
         self.__node_set = NodeSet
-        super().__init__(NodeSetOptions, **kwargs)
+        super().__init__(NodeSetOptionSet, **kwargs)
 
     @property
     def node_set(self) -> str:
@@ -161,7 +161,7 @@ class NodeSet(BaseModel, LineInterface):
     @classmethod
     def from_str(cls, line: str) -> "NodeSet":
         """Construct model from configuration line."""
-        data = parse_line(NodeSetOptions, line)
+        data = parse_line(NodeSetOptionSet, line)
         return cls(**data)
 
     def dict(self) -> Dict[str, Any]:
@@ -171,7 +171,7 @@ class NodeSet(BaseModel, LineInterface):
     def __str__(self) -> str:
         """Return model as configuration line."""
         line = [f"NodeSet={self.__node_set}"]
-        line.extend(marshall_content(NodeSetOptions, self.data))
+        line.extend(marshall_content(NodeSetOptionSet, self.data))
         return " ".join(line)
 
 
@@ -180,7 +180,7 @@ class Partition(BaseModel, LineInterface):
 
     def __init__(self, *, PartitionName: str, **kwargs):  # noqa N803
         self.__partition_name = PartitionName
-        super().__init__(PartitionOptions, **kwargs)
+        super().__init__(PartitionOptionSet, **kwargs)
 
     @property
     def partition_name(self) -> str:
@@ -201,7 +201,7 @@ class Partition(BaseModel, LineInterface):
     @classmethod
     def from_str(cls, line: str) -> "Partition":
         """Construct model from configuration line."""
-        data = parse_line(PartitionOptions, line)
+        data = parse_line(PartitionOptionSet, line)
         return cls(**data)
 
     def dict(self) -> Dict[str, Any]:
@@ -211,7 +211,7 @@ class Partition(BaseModel, LineInterface):
     def __str__(self) -> str:
         """Return model as configuration line."""
         line = [f"PartitionName={self.__partition_name}"]
-        line.extend(marshall_content(PartitionOptions, self.data))
+        line.extend(marshall_content(PartitionOptionSet, self.data))
         return " ".join(line)
 
 
@@ -228,7 +228,7 @@ class SlurmConfig(BaseModel):
         Partitions: Dict[str, Any] = None,  # noqa N803
         **kwargs,
     ) -> None:
-        super().__init__(SlurmConfigOptions, **kwargs)
+        super().__init__(SlurmConfigOptionSet, **kwargs)
         self.data["Nodes"] = Nodes or {}
         self.data["DownNodes"] = DownNodes or []
         self.data["FrontendNodes"] = FrontendNodes or {}
@@ -311,15 +311,15 @@ class SlurmConfig(BaseModel):
         self.data["Partitions"] = {}
 
 
-for opt in NodeOptions.keys():
+for opt in NodeOptionSet.keys():
     setattr(Node, format_key(opt), property(*generate_descriptors(opt)))
-for opt in DownNodeOptions.keys():
+for opt in DownNodeOptionSet.keys():
     setattr(DownNodes, format_key(opt), property(*generate_descriptors(opt)))
-for opt in FrontendNodeOptions.keys():
+for opt in FrontendNodeOptionSet.keys():
     setattr(FrontendNode, format_key(opt), property(*generate_descriptors(opt)))
-for opt in NodeSetOptions.keys():
+for opt in NodeSetOptionSet.keys():
     setattr(NodeSet, format_key(opt), property(*generate_descriptors(opt)))
-for opt in PartitionOptions.keys():
+for opt in PartitionOptionSet.keys():
     setattr(Partition, format_key(opt), property(*generate_descriptors(opt)))
-for opt in SlurmConfigOptions.keys():
+for opt in SlurmConfigOptionSet.keys():
     setattr(SlurmConfig, format_key(opt), property(*generate_descriptors(opt)))
