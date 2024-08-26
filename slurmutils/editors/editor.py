@@ -108,7 +108,7 @@ def loader(func):
     def wrapper(*args, **kwargs):
         fin = args[0]
         if not path.exists(fin):
-            raise FileNotFoundError("could not locate %s", fin)
+            raise FileNotFoundError(f"could not locate {fin}")
 
         _logger.debug("reading contents of %s", fin)
         return func(*args, **kwargs)
