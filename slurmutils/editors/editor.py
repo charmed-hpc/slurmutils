@@ -18,39 +18,20 @@ import logging
 import shlex
 from functools import wraps
 from os import path
-from typing import Any, Dict, List, Tuple
+from typing import Any, Dict, List, Optional
 
 from ..exceptions import EditorError
 
 _logger = logging.getLogger("slurmutils")
 
 
-def _is_comment(line: str) -> bool:
-    """Check if line is a comment."""
-    return line.startswith("#")
-
-
-def _contains_comment(line: str) -> bool:
-    """Check if line contains an inline comment."""
-    return "#" in line
-
-
-def _slice_comment(line: str) -> str:
-    """Slice inline comment off of line."""
-    return line.split("#", maxsplit=1)[0]
-
-
-def clean(line: str) -> Tuple[str, bool]:
+def clean(line: str) -> Optional[str]:
     """Clean line before further processing.
 
     Returns:
-        Returns the cleaned line and False if it should be ignored.
-        If True, then the processors should ignore the line.
+        Line with inline comments removed. `None` if line is a comment.
     """
-    if _is_comment(line):
-        return "", True
-
-    return (_slice_comment(line) if _contains_comment(line) else line).strip(), False
+    return cleaned if (cleaned := line.split("#", maxsplit=1)[0]) != "" else None
 
 
 def parse_line(options, line: str) -> Dict[str, Any]:
