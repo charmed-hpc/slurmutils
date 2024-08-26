@@ -86,7 +86,7 @@ def _parse(content: str) -> SlurmConfig:
     for index, line in enumerate(lines):
         config, ignore = clean(line)
         if ignore:
-            _logger.warning("ignoring line %s at index %s in slurm.conf", line, index)
+            _logger.debug("ignoring line %s at index %s in slurm.conf", line, index)
             continue
 
         if config.startswith("Include"):
