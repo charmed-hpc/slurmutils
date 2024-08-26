@@ -20,7 +20,7 @@ import copy
 import json
 import re
 from abc import ABC, abstractmethod
-from typing import Any, Dict
+from typing import Any, Callable, Dict, Tuple
 
 from ..exceptions import ModelError
 
@@ -49,7 +49,7 @@ def format_key(key: str) -> str:
     return _camelize.sub(r"_", key).lower()
 
 
-def generate_descriptors(opt: str):
+def generate_descriptors(opt: str) -> Tuple[Callable, Callable, Callable]:
     """Generate descriptors for retrieving and mutating configuration options.
 
     Args:
