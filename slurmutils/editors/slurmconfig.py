@@ -23,7 +23,7 @@ from pathlib import Path
 from typing import Union
 
 from ..models import DownNodes, FrontendNode, Node, NodeSet, Partition, SlurmConfig
-from ..models.option import SlurmConfigOptions
+from ..models.option import SlurmConfigOptionSet
 from .editor import (
     clean,
     dumper,
@@ -114,7 +114,7 @@ def _parse(content: str) -> SlurmConfig:
             partitions.update(Partition.from_str(config).dict())
             data["Partitions"] = partitions
         else:
-            data.update(parse_line(SlurmConfigOptions, config))
+            data.update(parse_line(SlurmConfigOptionSet, config))
 
     return SlurmConfig.from_dict(data)
 
@@ -141,7 +141,7 @@ def _marshall(config: SlurmConfig) -> str:
     if slurmctld_host:
         result.extend([f"SlurmctldHost={host}" for host in slurmctld_host])
 
-    result.extend(marshall_content(SlurmConfigOptions, data))
+    result.extend(marshall_content(SlurmConfigOptionSet, data))
 
     if nodes:
         for k, v in nodes.items():

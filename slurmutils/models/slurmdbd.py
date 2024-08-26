@@ -15,15 +15,15 @@
 """Data models for `slurmdbd.conf` configuration file."""
 
 from .model import BaseModel, format_key, generate_descriptors
-from .option import SlurmdbdConfigOptions
+from .option import SlurmdbdConfigOptionSet
 
 
 class SlurmdbdConfig(BaseModel):
     """`slurmdbd.conf` data model."""
 
     def __init__(self, **kwargs):
-        super().__init__(SlurmdbdConfigOptions, **kwargs)
+        super().__init__(SlurmdbdConfigOptionSet, **kwargs)
 
 
-for opt in SlurmdbdConfigOptions.keys():
+for opt in SlurmdbdConfigOptionSet.keys():
     setattr(SlurmdbdConfig, format_key(opt), property(*generate_descriptors(opt)))

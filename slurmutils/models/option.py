@@ -15,13 +15,13 @@
 """Configuration options for Slurm data models."""
 
 __all__ = [
-    "SlurmdbdConfigOptions",
-    "SlurmConfigOptions",
-    "NodeOptions",
-    "DownNodeOptions",
-    "FrontendNodeOptions",
-    "NodeSetOptions",
-    "PartitionOptions",
+    "SlurmdbdConfigOptionSet",
+    "SlurmConfigOptionSet",
+    "NodeOptionSet",
+    "DownNodeOptionSet",
+    "FrontendNodeOptionSet",
+    "NodeSetOptionSet",
+    "PartitionOptionSet",
 ]
 
 from dataclasses import dataclass, fields
@@ -37,7 +37,7 @@ from .callback import (
 
 
 @dataclass(frozen=True)
-class _Option:
+class _OptionSet:
     """Base for configuration option dataclasses."""
 
     @classmethod
@@ -48,7 +48,7 @@ class _Option:
 
 
 @dataclass(frozen=True)
-class SlurmdbdConfigOptions(_Option):
+class SlurmdbdConfigOptionSet(_OptionSet):
     """`slurmdbd.conf` configuration options."""
 
     AllowNoDefAcct: Callback = Callback()
@@ -106,7 +106,7 @@ class SlurmdbdConfigOptions(_Option):
 
 
 @dataclass(frozen=True)
-class SlurmConfigOptions(_Option):
+class SlurmConfigOptionSet(_OptionSet):
     """`slurm.conf` configuration options."""
 
     AccountingStorageBackupHost: Callback = CommaSeparatorCallback
@@ -339,7 +339,7 @@ class SlurmConfigOptions(_Option):
 
 
 @dataclass(frozen=True)
-class NodeOptions(_Option):
+class NodeOptionSet(_OptionSet):
     """`slurm.conf` node configuration options."""
 
     NodeName: Callback = Callback()
@@ -368,7 +368,7 @@ class NodeOptions(_Option):
 
 
 @dataclass(frozen=True)
-class DownNodeOptions(_Option):
+class DownNodeOptionSet(_OptionSet):
     """`slurm.conf` down node configuration options."""
 
     DownNodes: Callback = CommaSeparatorCallback
@@ -377,7 +377,7 @@ class DownNodeOptions(_Option):
 
 
 @dataclass(frozen=True)
-class FrontendNodeOptions(_Option):
+class FrontendNodeOptionSet(_OptionSet):
     """`slurm.conf` frontend node configuration options."""
 
     FrontendName: Callback = Callback()
@@ -392,7 +392,7 @@ class FrontendNodeOptions(_Option):
 
 
 @dataclass(frozen=True)
-class NodeSetOptions(_Option):
+class NodeSetOptionSet(_OptionSet):
     """`slurm.conf` node set configuration options."""
 
     NodeSet: Callback = Callback()
@@ -401,7 +401,7 @@ class NodeSetOptions(_Option):
 
 
 @dataclass(frozen=True)
-class PartitionOptions(_Option):
+class PartitionOptionSet(_OptionSet):
     """`slurm.conf` partition configuration options."""
 
     PartitionName: Callback = Callback()
