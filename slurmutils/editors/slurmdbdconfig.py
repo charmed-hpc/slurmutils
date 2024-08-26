@@ -38,32 +38,32 @@ _logger = logging.getLogger("slurmutils")
 
 @loader
 def load(file: Union[str, os.PathLike]) -> SlurmdbdConfig:
-    """Load `slurm.conf` data model from slurm.conf file."""
+    """Load `slurmdbd.conf` data model from slurmdbd.conf file."""
     return loads(Path(file).read_text())
 
 
 def loads(content: str) -> SlurmdbdConfig:
-    """Load `slurm.conf` data model from string."""
+    """Load `slurmdbd.conf` data model from string."""
     return _parse(content)
 
 
 @dumper
 def dump(config: SlurmdbdConfig, file: Union[str, os.PathLike]) -> None:
-    """Dump `slurm.conf` data model into slurm.conf file."""
+    """Dump `slurmdbd.conf` data model into slurmdbd.conf file."""
     Path(file).write_text(dumps(config))
 
 
 def dumps(config: SlurmdbdConfig) -> str:
-    """Dump `slurm.conf` data model into a string."""
+    """Dump `slurmdbd.conf` data model into a string."""
     return _marshall(config)
 
 
 @contextmanager
 def edit(file: Union[str, os.PathLike]) -> SlurmdbdConfig:
-    """Edit a slurm.conf file.
+    """Edit a slurmdbd.conf file.
 
     Args:
-        file: Path to slurm.conf file to edit. If slurm.conf does
+        file: Path to slurmdbd.conf file to edit. If slurmdbd.conf does
             not exist at the specified file path, it will be created.
     """
     if not os.path.exists(file):
