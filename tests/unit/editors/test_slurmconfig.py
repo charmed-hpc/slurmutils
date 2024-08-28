@@ -236,5 +236,136 @@ class TestSlurmConfigEditor(unittest.TestCase):
             for partition in new_partitions:
                 config.partitions.update(partition.dict())
 
+    def test_override(self):
+        """Test `overrides` method of the slurmconfig module."""
+        config_overrides = {
+            "KillWait": 10,
+            "PluginDir": "/var/snap/slurm/usr/local/lib:/var/snap/slurm/usr/local/slurm/lib",
+            "ReturnToService": 0,
+            "SchedulerType": "sched/builtin",
+            "SwitchType": "switch/hpe_slingshot",
+            "WaitTime": 30,
+            "Nodes": {
+                "juju-c9fc6f-2": {
+                    "NodeAddr": "10.152.28.98",
+                    "CPUs": "9",
+                    "RealMemory": "9000",
+                    "TmpDisk": "90000",
+                },
+                "juju-c9fc6f-6": {
+                    "NodeAddr": "10.152.28.52",
+                    "CPUs": "9",
+                    "RealMemory": "1000",
+                    "TmpDisk": "10000",
+                },
+                "juju-c9fc6f-7": {
+                    "NodeAddr": "10.152.28.53",
+                    "CPUs": "9",
+                    "RealMemory": "1000",
+                    "TmpDisk": "10000",
+                },
+            },
+            "Partitions": {
+                "DEFAULT": {
+                    "MaxTime": "10",
+                    "MaxNodes": "5",
+                    "State": "UP",
+                },
+                "new_batch": {
+                    "Nodes": ["juju-c9fc6f-6", "juju-c9fc6f-7"],
+                    "MinNodes": "1",
+                    "MaxTime": "120",
+                    "AllowGroups": "admin",
+                },
+            },
+        }
+
+        config = slurmconfig.loads(example_slurm_conf)
+        overrides = slurmconfig.SlurmConfig.from_dict(config_overrides)
+        config.override(overrides)
+
+        self.assertEqual(config.kill_wait, 10)
+        self.assertEqual(
+            config.plugin_dir,
+            "/var/snap/slurm/usr/local/lib:/var/snap/slurm/usr/local/slurm/lib",
+        )
+        self.assertEqual(config.scheduler_type, "sched/builtin")
+        self.assertEqual(config.switch_type, "switch/hpe_slingshot")
+        self.assertEqual(config.wait_time, 30)
+
+        self.assertDictEqual(
+            config.nodes,
+            {
+                "juju-c9fc6f-2": {
+                    "NodeAddr": "10.152.28.98",
+                    "CPUs": "9",
+                    "RealMemory": "9000",
+                    "TmpDisk": "90000",
+                },
+                "juju-c9fc6f-3": {
+                    "NodeAddr": "10.152.28.49",
+                    "CPUs": "1",
+                    "RealMemory": "1000",
+                    "TmpDisk": "10000",
+                },
+                "juju-c9fc6f-4": {
+                    "NodeAddr": "10.152.28.50",
+                    "CPUs": "1",
+                    "RealMemory": "1000",
+                    "TmpDisk": "10000",
+                },
+                "juju-c9fc6f-5": {
+                    "NodeAddr": "10.152.28.51",
+                    "CPUs": "1",
+                    "RealMemory": "1000",
+                    "TmpDisk": "10000",
+                },
+                "juju-c9fc6f-6": {
+                    "NodeAddr": "10.152.28.52",
+                    "CPUs": "9",
+                    "RealMemory": "1000",
+                    "TmpDisk": "10000",
+                },
+                "juju-c9fc6f-7": {
+                    "NodeAddr": "10.152.28.53",
+                    "CPUs": "9",
+                    "RealMemory": "1000",
+                    "TmpDisk": "10000",
+                },
+            },
+        )
+        self.assertListEqual(
+            config.down_nodes,
+            [
+                {
+                    "DownNodes": ["juju-c9fc6f-5"],
+                    "State": "DOWN",
+                    "Reason": "Maintenance Mode",
+                }
+            ],
+        )
+        self.assertDictEqual(
+            config.partitions,
+            {
+                "DEFAULT": {
+                    "MaxTime": "10",
+                    "MaxNodes": "5",
+                    "State": "UP",
+                },
+                "batch": {
+                    "Nodes": ["juju-c9fc6f-2", "juju-c9fc6f-3", "juju-c9fc6f-4", "juju-c9fc6f-5"],
+                    "MinNodes": "4",
+                    "MaxTime": "120",
+                    "AllowGroups": ["admin"],
+                },
+                "new_batch": {
+                    "Nodes": ["juju-c9fc6f-6", "juju-c9fc6f-7"],
+                    "MinNodes": "1",
+                    "MaxTime": "120",
+                    "AllowGroups": "admin",
+                },
+            },
+        )
+
     def tearDown(self):
         Path("slurm.conf").unlink()

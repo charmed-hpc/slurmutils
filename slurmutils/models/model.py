@@ -90,7 +90,7 @@ class BaseModel(ABC):
                 raise ModelError(
                     (
                         f"unrecognized argument {k}. "
-                        + f"valid arguments are {[opt.name for opt in validator]}"
+                        + f"valid arguments are {list(validator.keys())}"
                     )
                 )
 
@@ -114,3 +114,7 @@ class BaseModel(ABC):
     def json(self) -> str:
         """Return model as json object."""
         return json.dumps(self.dict())
+
+    def override(self, other):
+        """Override the fields of this model with the fields of another model."""
+        self.data.update(other.dict())
