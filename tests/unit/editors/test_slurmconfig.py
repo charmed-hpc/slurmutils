@@ -236,9 +236,9 @@ class TestSlurmConfigEditor(unittest.TestCase):
             for partition in new_partitions:
                 config.partitions.update(partition.dict())
 
-    def test_override(self):
-        """Test `overrides` method of the slurmconfig module."""
-        config_overrides = {
+    def test_update(self):
+        """Test `update` method of the slurmconfig module."""
+        config_updates = {
             "KillWait": 10,
             "PluginDir": "/var/snap/slurm/usr/local/lib:/var/snap/slurm/usr/local/slurm/lib",
             "ReturnToService": 0,
@@ -265,6 +265,13 @@ class TestSlurmConfigEditor(unittest.TestCase):
                     "TmpDisk": "10000",
                 },
             },
+            "DownNodes": [
+                {
+                    "DownNodes": ["juju-c9fc6f-6", "juju-c9fc6f-7"],
+                    "State": "DOWN",
+                    "Reason": "New nodes",
+                }
+            ],
             "Partitions": {
                 "DEFAULT": {
                     "MaxTime": "10",
@@ -281,8 +288,8 @@ class TestSlurmConfigEditor(unittest.TestCase):
         }
 
         config = slurmconfig.loads(example_slurm_conf)
-        overrides = slurmconfig.SlurmConfig.from_dict(config_overrides)
-        config.override(overrides)
+        updates = slurmconfig.SlurmConfig.from_dict(config_updates)
+        config.update(updates)
 
         self.assertEqual(config.kill_wait, 10)
         self.assertEqual(
@@ -341,7 +348,12 @@ class TestSlurmConfigEditor(unittest.TestCase):
                     "DownNodes": ["juju-c9fc6f-5"],
                     "State": "DOWN",
                     "Reason": "Maintenance Mode",
-                }
+                },
+                {
+                    "DownNodes": ["juju-c9fc6f-6", "juju-c9fc6f-7"],
+                    "State": "DOWN",
+                    "Reason": "New nodes",
+                },
             ],
         )
         self.assertDictEqual(
