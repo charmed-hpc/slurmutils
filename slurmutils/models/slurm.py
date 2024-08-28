@@ -24,6 +24,7 @@ __all__ = [
 ]
 
 import copy
+import logging
 from typing import Any, Dict, List, Optional
 
 from ..editors.editor import marshall_content, parse_line
@@ -36,6 +37,8 @@ from .option import (
     PartitionOptionSet,
     SlurmConfigOptionSet,
 )
+
+_logger = logging.getLogger("slurmutils")
 
 
 class Node(BaseModel, LineInterface):
@@ -309,6 +312,23 @@ class SlurmConfig(BaseModel):
     def partitions(self):
         """Delete entire partition mapping in the Slurm configuration."""
         self.data["Partitions"] = {}
+
+    def _update_dict_property(self, other: Dict[str, Any], prop: str):
+        for k, v in other[prop].items():
+            item = self.data[prop].get(k, {})
+            item.update(v)
+            self.data[prop][k] = item
+
+        del other[prop]
+
+    def override(self, other: "SlurmConfig"):
+        """Override the fields of this model with the fields of another model."""
+        other = other.dict()
+
+        for key in ["Nodes", "FrontendNodes", "NodeSets", "Partitions"]:
+            self._update_dict_property(other, key)
+
+        self.data.update({k: v for k, v in other.items() if v})
 
 
 for opt in NodeOptionSet.keys():
