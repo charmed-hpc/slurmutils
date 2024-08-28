@@ -24,7 +24,6 @@ __all__ = [
 ]
 
 import copy
-import logging
 from typing import Any, Dict, List, Optional
 
 from ..editors.editor import marshall_content, parse_line
@@ -37,8 +36,6 @@ from .option import (
     PartitionOptionSet,
     SlurmConfigOptionSet,
 )
-
-_logger = logging.getLogger("slurmutils")
 
 
 class Node(BaseModel, LineInterface):
@@ -313,22 +310,19 @@ class SlurmConfig(BaseModel):
         """Delete entire partition mapping in the Slurm configuration."""
         self.data["Partitions"] = {}
 
-    def _update_dict_property(self, other: Dict[str, Any], prop: str):
-        for k, v in other[prop].items():
-            item = self.data[prop].get(k, {})
-            item.update(v)
-            self.data[prop][k] = item
-
-        del other[prop]
-
-    def override(self, other: "SlurmConfig"):
-        """Override the fields of this model with the fields of another model."""
-        other = other.dict()
-
-        for key in ["Nodes", "FrontendNodes", "NodeSets", "Partitions"]:
-            self._update_dict_property(other, key)
-
-        self.data.update({k: v for k, v in other.items() if v})
+    def update(self, other: "SlurmConfig") -> None:
+        """Update the fields of this model with the fields of another model."""
+        for config, value in other.dict().items():
+            if config in ["Nodes", "FrontendNodes", "NodeSets", "Partitions"]:
+                for k, v in value.items():
+                    data = self.data[config].get(k, {})
+                    data.update(v)
+                    self.data[config][k] = data
+                continue
+            if config == "DownNodes":
+                self.data["DownNodes"] = self.data["DownNodes"] + value
+                continue
+            self.data.update({config: value})
 
 
 for opt in NodeOptionSet.keys():
