@@ -116,5 +116,5 @@ class BaseModel(ABC):
         return json.dumps(self.dict())
 
     def update(self, other) -> None:
-        """Override the fields of this model with the fields of another model."""
+        """Update current data model content with content of other data model."""
         self.data.update(other.data)
