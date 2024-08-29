@@ -115,6 +115,6 @@ class BaseModel(ABC):
         """Return model as json object."""
         return json.dumps(self.dict())
 
-    def override(self, other) -> None:
+    def update(self, other) -> None:
         """Override the fields of this model with the fields of another model."""
         self.data.update(other.data)
