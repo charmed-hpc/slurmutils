@@ -49,7 +49,7 @@ def parse_line(options, line: str) -> Dict[str, Any]:
             raise EditorError(
                 (
                     f"unable to parse configuration option {k}. "
-                    + f"valid configuration options are {[opt for opt in options.keys()]}"
+                    + f"valid configuration options are {list(options.keys())}"
                 )
             )
 
