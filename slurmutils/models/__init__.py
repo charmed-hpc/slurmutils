@@ -14,6 +14,7 @@
 
 """Data models for common Slurm objects."""
 
+from .cgroup import CgroupConfig as CgroupConfig
 from .slurm import DownNodes as DownNodes
 from .slurm import FrontendNode as FrontendNode
 from .slurm import Node as Node
