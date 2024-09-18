@@ -20,7 +20,6 @@ from pathlib import Path
 
 from slurmutils.editors import cgroupconfig
 
-
 EXAMPLE_CGROUP_CONF = """#
 # `cgroup.conf` file generated at 2024-09-18 15:10:44.652017 by slurmutils.
 #

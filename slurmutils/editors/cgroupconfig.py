@@ -22,7 +22,7 @@ from contextlib import contextmanager
 from pathlib import Path
 from typing import Union
 
-from ..models import  CgroupConfig
+from ..models import CgroupConfig
 from ..models.option import CgroupConfigOptionSet
 from .editor import (
     clean,
