@@ -15,6 +15,7 @@
 """Configuration options for Slurm data models."""
 
 __all__ = [
+    "CgroupConfigOptionSet",
     "SlurmdbdConfigOptionSet",
     "SlurmConfigOptionSet",
     "NodeOptionSet",
@@ -45,6 +46,29 @@ class _OptionSet:
         """Yield iterable list of configuration option names."""
         for field in fields(cls):
             yield field.name
+
+
+@dataclass(frozen=True)
+class CgroupConfigOptionSet(_OptionSet):
+    """`cgroup.conf` configuration options."""
+
+    CgroupMountpoint: Callback = Callback()
+    CgroupPlugin: Callback = Callback()
+    SystemdTimeout: Callback = Callback()
+    IgnoreSystemd: Callback = Callback()
+    IgnoreSystemdOnFailure: Callback = Callback()
+    EnableControllers: Callback = Callback()
+    AllowedRAMSpace: Callback = Callback()
+    AllowedSwapSpace: Callback = Callback()
+    ConstrainCores: Callback = Callback()
+    ConstrainDevices: Callback = Callback()
+    ConstrainRAMSpace: Callback = Callback()
+    ConstrainSwapSpace: Callback = Callback()
+    MaxRAMPercent: Callback = Callback()
+    MaxSwapPercent: Callback = Callback()
+    MemorySwappiness: Callback = Callback()
+    MinRAMSpace: Callback = Callback()
+    SignalChildrenProcesses: Callback = Callback()
 
 
 @dataclass(frozen=True)
