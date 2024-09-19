@@ -23,14 +23,7 @@ from pathlib import Path
 from typing import Union
 
 from ..models import CgroupConfig
-from ..models.option import CgroupConfigOptionSet
-from .editor import (
-    clean,
-    dumper,
-    loader,
-    marshall_content,
-    parse_line,
-)
+from .editor import dumper, loader
 
 _logger = logging.getLogger("slurmutils")
 
@@ -43,7 +36,7 @@ def load(file: Union[str, os.PathLike]) -> CgroupConfig:
 
 def loads(content: str) -> CgroupConfig:
     """Load `cgroup.conf` data model from string."""
-    return _parse(content)
+    return CgroupConfig.from_str(content)
 
 
 @dumper
@@ -54,7 +47,7 @@ def dump(config: CgroupConfig, file: Union[str, os.PathLike]) -> None:
 
 def dumps(config: CgroupConfig) -> str:
     """Dump `cgroup.conf` data model into a string."""
-    return _marshall(config)
+    return str(config)
 
 
 @contextmanager
@@ -73,33 +66,3 @@ def edit(file: Union[str, os.PathLike]) -> CgroupConfig:
 
     yield config
     dump(config, file)
-
-
-def _parse(content: str) -> CgroupConfig:
-    """Parse contents of `cgroup.conf`.
-
-    Args:
-        content: Contents of `cgroup.conf`.
-    """
-    data = {}
-    lines = content.splitlines()
-    for index, line in enumerate(lines):
-        config = clean(line)
-        if config is None:
-            _logger.debug("ignoring line %s at index %s in cgroup.conf", line, index)
-            continue
-
-        data.update(parse_line(CgroupConfigOptionSet, config))
-
-    return CgroupConfig.from_dict(data)
-
-
-def _marshall(config: CgroupConfig) -> str:
-    """Marshall `cgroup.conf` data model back into cgroup.conf format.
-
-    Args:
-        config: `cgroup.conf` data model to marshall.
-    """
-    result = []
-    result.extend(marshall_content(CgroupConfigOptionSet, config.dict()))
-    return "\n".join(result)

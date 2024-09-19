@@ -15,71 +15,10 @@
 """Base methods for Slurm workload manager configuration file editors."""
 
 import logging
-import shlex
 from functools import wraps
 from os import path
-from typing import Any, Dict, List, Optional
-
-from ..exceptions import EditorError
 
 _logger = logging.getLogger("slurmutils")
-
-
-def clean(line: str) -> Optional[str]:
-    """Clean line before further processing.
-
-    Returns:
-        Line with inline comments removed. `None` if line is a comment.
-    """
-    return cleaned if (cleaned := line.split("#", maxsplit=1)[0]) != "" else None
-
-
-def parse_line(options, line: str) -> Dict[str, Any]:
-    """Parse configuration line.
-
-    Args:
-        options: Available options for line.
-        line: Configuration line to parse.
-    """
-    data = {}
-    opts = shlex.split(line)  # Use `shlex.split(...)` to preserve quotation strings.
-    for opt in opts:
-        k, v = opt.split("=", maxsplit=1)
-        if not hasattr(options, k):
-            raise EditorError(
-                (
-                    f"unable to parse configuration option {k}. "
-                    + f"valid configuration options are {list(options.keys())}"
-                )
-            )
-
-        parse = getattr(options, k).parser
-        data[k] = parse(v) if parse else v
-
-    return data
-
-
-def marshall_content(options, line: Dict[str, Any]) -> List[str]:
-    """Marshall data model content back into configuration line.
-
-    Args:
-        options: Available options for line.
-        line: Data model to marshall into line.
-    """
-    result = []
-    for k, v in line.items():
-        if not hasattr(options, k):
-            raise EditorError(
-                (
-                    f"unable to marshall configuration option {k}. "
-                    + f"valid configuration options are {[option.name for option in options]}"
-                )
-            )
-
-        marshall = getattr(options, k).marshaller
-        result.append(f"{k}={marshall(v) if marshall else v}")
-
-    return result
 
 
 def loader(func):

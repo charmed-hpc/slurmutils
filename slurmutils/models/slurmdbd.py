@@ -14,7 +14,7 @@
 
 """Data models for `slurmdbd.conf` configuration file."""
 
-from .model import BaseModel, format_key, generate_descriptors
+from .model import BaseModel, clean, format_key, generate_descriptors, marshall_content, parse_line
 from .option import SlurmdbdConfigOptionSet
 
 
@@ -23,6 +23,26 @@ class SlurmdbdConfig(BaseModel):
 
     def __init__(self, **kwargs):
         super().__init__(SlurmdbdConfigOptionSet, **kwargs)
+
+    @classmethod
+    def from_str(cls, content: str) -> "SlurmdbdConfig":
+        """Construct SlurmdbdConfig data model from slurmdbd.conf format."""
+        data = {}
+        lines = content.splitlines()
+        for index, line in enumerate(lines):
+            config = clean(line)
+            if config is None:
+                continue
+
+            data.update(parse_line(SlurmdbdConfigOptionSet, config))
+
+        return cls.from_dict(data)
+
+    def __str__(self) -> str:
+        """Return SlurmdbdConfig data model in slurmdbd.conf format."""
+        result = []
+        result.extend(marshall_content(SlurmdbdConfigOptionSet, self.dict()))
+        return "\n".join(result)
 
 
 for opt in SlurmdbdConfigOptionSet.keys():

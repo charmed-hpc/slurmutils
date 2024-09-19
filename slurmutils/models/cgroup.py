@@ -14,7 +14,7 @@
 
 """Data models for `cgroup.conf` configuration file."""
 
-from .model import BaseModel, format_key, generate_descriptors
+from .model import BaseModel, clean, format_key, generate_descriptors, marshall_content, parse_line
 from .option import CgroupConfigOptionSet
 
 
@@ -23,6 +23,26 @@ class CgroupConfig(BaseModel):
 
     def __init__(self, **kwargs) -> None:
         super().__init__(CgroupConfigOptionSet, **kwargs)
+
+    @classmethod
+    def from_str(cls, content: str) -> "CgroupConfig":
+        """Construct SlurmdbdConfig data model from slurmdbd.conf format."""
+        data = {}
+        lines = content.splitlines()
+        for index, line in enumerate(lines):
+            config = clean(line)
+            if config is None:
+                continue
+
+            data.update(parse_line(CgroupConfigOptionSet, config))
+
+        return CgroupConfig.from_dict(data)
+
+    def __str__(self) -> str:
+        """Return CgroupConfig data model in cgroup.conf format."""
+        result = []
+        result.extend(marshall_content(CgroupConfigOptionSet, self.dict()))
+        return "\n".join(result)
 
 
 for opt in CgroupConfigOptionSet.keys():

@@ -14,13 +14,21 @@
 
 """Base classes and methods for composing Slurm data models."""
 
-__all__ = ["BaseModel", "LineInterface", "format_key", "generate_descriptors"]
+__all__ = [
+    "BaseModel",
+    "clean",
+    "format_key",
+    "generate_descriptors",
+    "marshall_content",
+    "parse_line",
+]
 
 import copy
 import json
 import re
+import shlex
 from abc import ABC, abstractmethod
-from typing import Any, Callable, Dict, Tuple
+from typing import Any, Callable, Dict, List, Optional, Tuple
 
 from ..exceptions import ModelError
 
@@ -68,17 +76,61 @@ def generate_descriptors(opt: str) -> Tuple[Callable, Callable, Callable]:
     return getter, setter, deleter
 
 
-class LineInterface:
-    """Interface for data models that can be constructed from a configuration line."""
+def clean(line: str) -> Optional[str]:
+    """Clean line before further processing.
 
-    @classmethod
-    @abstractmethod
-    def from_str(cls, line: str):
-        """Construct data model from configuration line."""
+    Returns:
+        Line with inline comments removed. `None` if line is a comment.
+    """
+    return cleaned if (cleaned := line.split("#", maxsplit=1)[0]) != "" else None
 
-    @abstractmethod
-    def __str__(self) -> str:
-        """Return model as configuration line."""
+
+def parse_line(options, line: str) -> Dict[str, Any]:
+    """Parse configuration line.
+
+    Args:
+        options: Available options for line.
+        line: Configuration line to parse.
+    """
+    data = {}
+    opts = shlex.split(line)  # Use `shlex.split(...)` to preserve quotation strings.
+    for opt in opts:
+        k, v = opt.split("=", maxsplit=1)
+        if not hasattr(options, k):
+            raise ModelError(
+                (
+                    f"unable to parse configuration option {k}. "
+                    + f"valid configuration options are {list(options.keys())}"
+                )
+            )
+
+        parse = getattr(options, k).parser
+        data[k] = parse(v) if parse else v
+
+    return data
+
+
+def marshall_content(options, line: Dict[str, Any]) -> List[str]:
+    """Marshall data model content back into configuration line.
+
+    Args:
+        options: Available options for line.
+        line: Data model to marshall into line.
+    """
+    result = []
+    for k, v in line.items():
+        if not hasattr(options, k):
+            raise ModelError(
+                (
+                    f"unable to marshall configuration option {k}. "
+                    + f"valid configuration options are {[option.name for option in options]}"
+                )
+            )
+
+        marshall = getattr(options, k).marshaller
+        result.append(f"{k}={marshall(v) if marshall else v}")
+
+    return result
 
 
 class BaseModel(ABC):
@@ -106,6 +158,15 @@ class BaseModel(ABC):
         """Construct new model from JSON object."""
         data = json.loads(obj)
         return cls.from_dict(data)
+
+    @classmethod
+    @abstractmethod
+    def from_str(cls, content: str):
+        """Construct data model from configuration string."""
+
+    @abstractmethod
+    def __str__(self) -> str:
+        """Return model as configuration string."""
 
     def dict(self) -> Dict[str, Any]:
         """Return model as dictionary."""

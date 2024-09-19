@@ -24,14 +24,7 @@ from typing import Union
 
 from slurmutils.models import SlurmdbdConfig
 
-from ..models.option import SlurmdbdConfigOptionSet
-from .editor import (
-    clean,
-    dumper,
-    loader,
-    marshall_content,
-    parse_line,
-)
+from .editor import dumper, loader
 
 _logger = logging.getLogger("slurmutils")
 
@@ -44,7 +37,7 @@ def load(file: Union[str, os.PathLike]) -> SlurmdbdConfig:
 
 def loads(content: str) -> SlurmdbdConfig:
     """Load `slurmdbd.conf` data model from string."""
-    return _parse(content)
+    return SlurmdbdConfig.from_str(content)
 
 
 @dumper
@@ -55,7 +48,7 @@ def dump(config: SlurmdbdConfig, file: Union[str, os.PathLike]) -> None:
 
 def dumps(config: SlurmdbdConfig) -> str:
     """Dump `slurmdbd.conf` data model into a string."""
-    return _marshall(config)
+    return str(config)
 
 
 @contextmanager
@@ -74,33 +67,3 @@ def edit(file: Union[str, os.PathLike]) -> SlurmdbdConfig:
 
     yield config
     dump(config, file)
-
-
-def _parse(content: str) -> SlurmdbdConfig:
-    """Parse contents of `slurmdbd.conf`.
-
-    Args:
-        content: Contents of `slurmdbd.conf`.
-    """
-    data = {}
-    lines = content.splitlines()
-    for index, line in enumerate(lines):
-        config = clean(line)
-        if config is None:
-            _logger.debug("ignoring line %s at index %s in slurmdbd.conf", line, index)
-            continue
-
-        data.update(parse_line(SlurmdbdConfigOptionSet, config))
-
-    return SlurmdbdConfig.from_dict(data)
-
-
-def _marshall(config: SlurmdbdConfig) -> str:
-    """Marshall `slurmdbd.conf` data model back into slurmdbd.conf format.
-
-    Args:
-        config: `slurmdbd.conf` data model to marshall.
-    """
-    result = []
-    result.extend(marshall_content(SlurmdbdConfigOptionSet, config.dict()))
-    return "\n".join(result)

@@ -26,8 +26,7 @@ __all__ = [
 import copy
 from typing import Any, Dict, List, Optional
 
-from ..editors.editor import marshall_content, parse_line
-from .model import BaseModel, LineInterface, format_key, generate_descriptors
+from .model import BaseModel, clean, format_key, generate_descriptors, marshall_content, parse_line
 from .option import (
     DownNodeOptionSet,
     FrontendNodeOptionSet,
@@ -38,7 +37,7 @@ from .option import (
 )
 
 
-class Node(BaseModel, LineInterface):
+class Node(BaseModel):
     """`Node` data model."""
 
     def __init__(self, *, NodeName: str, **kwargs) -> None:  # noqa N803
@@ -78,7 +77,7 @@ class Node(BaseModel, LineInterface):
         return " ".join(line)
 
 
-class DownNodes(BaseModel, LineInterface):
+class DownNodes(BaseModel):
     """`DownNodes` data model."""
 
     def __init__(self, **kwargs):
@@ -95,7 +94,7 @@ class DownNodes(BaseModel, LineInterface):
         return " ".join(marshall_content(DownNodeOptionSet, self.data))
 
 
-class FrontendNode(BaseModel, LineInterface):
+class FrontendNode(BaseModel):
     """`FrontendNode` data model."""
 
     def __init__(self, *, FrontendName: str, **kwargs) -> None:  # noqa N803
@@ -135,7 +134,7 @@ class FrontendNode(BaseModel, LineInterface):
         return " ".join(line)
 
 
-class NodeSet(BaseModel, LineInterface):
+class NodeSet(BaseModel):
     """`NodeSet` data model."""
 
     def __init__(self, *, NodeSet: str, **kwargs) -> None:  # noqa N803
@@ -175,7 +174,7 @@ class NodeSet(BaseModel, LineInterface):
         return " ".join(line)
 
 
-class Partition(BaseModel, LineInterface):
+class Partition(BaseModel):
     """`Partition` data model."""
 
     def __init__(self, *, PartitionName: str, **kwargs):  # noqa N803
@@ -234,6 +233,87 @@ class SlurmConfig(BaseModel):
         self.data["FrontendNodes"] = FrontendNodes or {}
         self.data["NodeSets"] = NodeSets or {}
         self.data["Partitions"] = Partitions or {}
+
+    @classmethod
+    def from_str(cls, content: str) -> "SlurmConfig":
+        """Construct SlurmConfig data model from slurm.conf format."""
+        data = {}
+        lines = content.splitlines()
+        for index, line in enumerate(lines):
+            config = clean(line)
+            if config is None:
+                continue
+
+            if config.startswith("Include"):
+                _, v = config.split(maxsplit=1)
+                data["Include"] = data.get("Include", []) + [v]
+            elif config.startswith("SlurmctldHost"):
+                _, v = config.split("=", maxsplit=1)
+                data["SlurmctldHost"] = data.get("SlurmctldHost", []) + [v]
+            elif config.startswith("NodeName"):
+                nodes = data.get("Nodes", {})
+                nodes.update(Node.from_str(config).dict())
+                data["Nodes"] = nodes
+            elif config.startswith("DownNodes"):
+                data["DownNodes"] = data.get("DownNodes", []) + [DownNodes.from_str(config).dict()]
+            elif config.startswith("FrontendNode"):
+                frontend_nodes = data.get("FrontendNodes", {})
+                frontend_nodes.update(FrontendNode.from_str(config).dict())
+                data["FrontendNodes"] = frontend_nodes
+            elif config.startswith("NodeSet"):
+                node_sets = data.get("NodeSets", {})
+                node_sets.update(NodeSet.from_str(config).dict())
+                data["NodeSets"] = node_sets
+            elif config.startswith("PartitionName"):
+                partitions = data.get("Partitions", {})
+                partitions.update(Partition.from_str(config).dict())
+                data["Partitions"] = partitions
+            else:
+                data.update(parse_line(SlurmConfigOptionSet, config))
+
+        return cls.from_dict(data)
+
+    def __str__(self) -> str:
+        """Return SlurmConfig data model in slurm.conf format."""
+        result = []
+        data = self.dict()
+        include = data.pop("Include", [])
+        slurmctld_host = data.pop("SlurmctldHost", [])
+        nodes = data.pop("Nodes", {})
+        down_nodes = data.pop("DownNodes", [])
+        frontend_nodes = data.pop("FrontendNodes", {})
+        node_sets = data.pop("NodeSets", {})
+        partitions = data.pop("Partitions", {})
+
+        if include:
+            result.extend([f"Include {i}" for i in include])
+
+        if slurmctld_host:
+            result.extend([f"SlurmctldHost={host}" for host in slurmctld_host])
+
+        result.extend(marshall_content(SlurmConfigOptionSet, data))
+
+        if nodes:
+            for k, v in nodes.items():
+                result.append(str(Node(NodeName=k, **v)))
+
+        if down_nodes:
+            for entry in down_nodes:
+                result.append(str(DownNodes(**entry)))
+
+        if frontend_nodes:
+            for k, v in frontend_nodes.items():
+                result.append(str(FrontendNode(FrontendName=k, **v)))
+
+        if node_sets:
+            for k, v in node_sets.items():
+                result.append(str(NodeSet(NodeSet=k, **v)))
+
+        if partitions:
+            for k, v in partitions.items():
+                result.append(str(Partition(PartitionName=k, **v)))
+
+        return "\n".join(result)
 
     @property
     def nodes(self):
