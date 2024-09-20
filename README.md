@@ -17,6 +17,7 @@ slurmutils package include:
 
 * `slurmconfig`: An editor for _slurm.conf_ configuration files.
 * `slurmdbdconfig`: An editor for _slurmdbd.conf_ configuration files.
+* `cgroupconfig`: An editor for _cgroup.conf_ configuration files.
 
 For more information on how to use or contribute to slurmutils, 
 check out the [Getting Started](#-getting-started) and [Development](#-development) 
@@ -85,7 +86,7 @@ with slurmconfig.edit("/etc/slurm/slurm.conf") as config:
 
 ##### `slurmdbdconfig`
 
-This module provides and API for editing _slurmdbd.conf_ files, and can create new
+This module provides an API for editing _slurmdbd.conf_ files, and can create new
 _slurmdbd.conf_ files if they do not exist. Here's some operations you can perform
 on the _slurmdbd.conf_ file using this editor:
 
@@ -100,6 +101,22 @@ with slurmdbdconfig.edit("/etc/slurm/slurmdbd.conf") as config:
     config.debug_flags = ["DB_EVENT", "DB_JOB", "DB_USAGE"]
     del config.auth_alt_types
     del config.auth_alt_parameters
+```
+
+##### `cgroupconfig`
+
+This module provides an API for editing _cgroup.conf_ files, and create new _cgroup.conf_
+files if they do not exist. Here's some operations you can perform on the _cgroup.conf_
+file using this editor:
+
+```python
+from slurmutils.editors import cgroupconfig
+
+with cgroupconfig.edit("/etc/slurm/cgroup.conf") as config:
+    config.constrain_cores = "yes"
+    config.constrain_devices = "yes"
+    config.constrain_ram_space = "yes"
+    config.constrain_swap_space = "yes"
 ```
 
 ## 🤔 What's next?
