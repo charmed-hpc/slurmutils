@@ -47,13 +47,12 @@ $ poetry install
 
 ### Usage
 
-#### Editors
+#### `slurmutils.editors`
+
+This module provides an API for editing files, and creating new files if they do not
+exist. Here's some operations you can perform on files using the editors in this module:
 
 ##### `slurmconfig`
-
-This module provides an API for editing both _slurm.conf_ and _Include_ files,
-and can create new configuration files if they do not exist. Here's some common Slurm
-lifecycle management operators you can perform using this editor:
 
 ###### Edit a pre-existing _slurm.conf_ configuration file
 
@@ -86,10 +85,6 @@ with slurmconfig.edit("/etc/slurm/slurm.conf") as config:
 
 ##### `slurmdbdconfig`
 
-This module provides an API for editing _slurmdbd.conf_ files, and can create new
-_slurmdbd.conf_ files if they do not exist. Here's some operations you can perform
-on the _slurmdbd.conf_ file using this editor:
-
 ###### Edit a pre-existing _slurmdbd.conf_ configuration file
 
 ```python
@@ -104,10 +99,6 @@ with slurmdbdconfig.edit("/etc/slurm/slurmdbd.conf") as config:
 ```
 
 ##### `cgroupconfig`
-
-This module provides an API for editing _cgroup.conf_ files, and create new _cgroup.conf_
-files if they do not exist. Here's some operations you can perform on the _cgroup.conf_
-file using this editor:
 
 ```python
 from slurmutils.editors import cgroupconfig
