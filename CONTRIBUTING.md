@@ -5,8 +5,8 @@ Do you have something that you wish to contribute to slurmutils? **If so, here i
 Please take a moment to review this document so that the contribution process will be easy and effective for everyone
 involved.
 
-Following these guidelines helps you communicate that you respect the developers managing and developing slurmutils. 
-In return, they should reciprocate that respect while they are addressing your issue or assessing your submitted 
+Following these guidelines helps you communicate that you respect the developers managing and developing slurmutils.
+In return, they should reciprocate that respect while they are addressing your issue or assessing your submitted
 patches and features.
 
 Have any questions? Feel free to ask them in the [Ubuntu HPC Matrix space](https://matrix.to/#/#ubuntu-hpc:matrix.org).
@@ -27,31 +27,31 @@ Have any questions? Feel free to ask them in the [Ubuntu HPC Matrix space](https
 The issue tracker is the preferred way for tracking [bug reports](#bug-reports), [feature requests](#feature-requests),
 and [submitted pull requests](#pull-requests), but please follow these guidelines for the issue tracker:
 
-* Please **do not** use the issue tracker for personal issues and/or support requests. 
+* Please **do not** use the issue tracker for personal issues and/or support requests.
 The [Discussions](#discussions) page is a better place to get help for personal support requests.
 
-* Please **do not** derail or troll issues. Keep the discussion on track and have respect for the other 
+* Please **do not** derail or troll issues. Keep the discussion on track and have respect for the other
 users/contributors of slurmutils.
 
-* Please **do not** post comments consisting solely of "+1", ":thumbsup:", or something similar. 
-Use [GitHub's "reactions" feature](https://blog.github.com/2016-03-10-add-reactions-to-pull-requests-issues-and-comments/) 
+* Please **do not** post comments consisting solely of "+1", ":thumbsup:", or something similar.
+Use [GitHub's "reactions" feature](https://blog.github.com/2016-03-10-add-reactions-to-pull-requests-issues-and-comments/)
 instead.
   * The maintainers of slurmutils reserve the right to delete comments that violate this rule.
 
-* Please **do not** repost or reopen issues that have been closed. Please either 
+* Please **do not** repost or reopen issues that have been closed. Please either
 submit a new issue or browser through previous issues.
   * The maintainers of slurmutils reserve the right to delete issues that violate this rule.
 
 ## Issues and Labels
 
-The slurmutils issue tracker uses a variety of labels to help organize and identify issues. 
+The slurmutils issue tracker uses a variety of labels to help organize and identify issues.
 Here is a list of some of these labels, and how the maintainers of slurmutils use them:
 
 * `Type: Bug` - Issues reported in the slurmutils source code that either produce errors or unexpected behavior.
 
 * `Status: Confirmed` - Issues marked `Type: Bug` that have be confirmed to be reproducible on a separate system.
 
-* `Type: Documentation` - Issues for improving or updating slurmutils's documentation. 
+* `Type: Documentation` - Issues for improving or updating slurmutils's documentation.
 Can also be used for pull requests.
 
 * `Type: Refactor` - Issues that pertain to improving the existing slurmutils code base.
@@ -60,55 +60,55 @@ Can also be used for pull requests.
 
 * `Type: Enchancement` - Issues marked as an agreed upon enhancement to slurmutils. Can also be used for pull requests.
 
-* `Statues: Help wanted` - Issues where we need help from the greater slurmutils community to solve.
+* `Status: Help wanted` - Issues where we need help from the greater slurmutils community to solve.
 
-For a complete look at slurmutils's labels, see the 
+For a complete look at slurmutils's labels, see the
 [project labels page](https://github.com/canonical/slurmutils/labels).
 
 ## Bug Reports
 
-A bug is a *demonstrable problem* that is caused by slurmutils. Good bug reports make slurmutils more robust, so thank 
+A bug is a *demonstrable problem* that is caused by slurmutils. Good bug reports make slurmutils more robust, so thank
 you for taking the time to report issues in the source code!
 
 Guidelines for reporting bugs in slurmutils:
 
-1. __Validate your testlet__ &mdash; ensure that your issue is not being caused by either a semantic or syntactic 
+1. __Validate your testlet__ &mdash; ensure that your issue is not being caused by either a semantic or syntactic
 error in your testlet's code.
 
-2. __Use the GitHub issue search__ &mdash; check if the issue you are encountering has already been reported by 
+2. __Use the GitHub issue search__ &mdash; check if the issue you are encountering has already been reported by
 someone else.
 
-3. __Check if the issue has already been fixed__ &mdash; try to reproduce your issue using the latest `main` 
+3. __Check if the issue has already been fixed__ &mdash; try to reproduce your issue using the latest `main`
 in the slurmutils repository.
 
-4. **Isolate the problem** &mdash; the more pinpointed the issue is, the easier time the slurmutils developers 
+4. **Isolate the problem** &mdash; the more pinpointed the issue is, the easier time the slurmutils developers
 will have fixing it.
 
-A good bug report should not leave others needing to chase you for more information. 
-Please try to be as detailed as possible in your report. What is your environment? What steps will reproduce the issue? 
-What operating system are you experiencing the problem on? Have you had the same results on a different 
-operating system? What would you expect to be the outcome? All these details will help the developers fix any 
+A good bug report should not leave others needing to chase you for more information.
+Please try to be as detailed as possible in your report. What is your environment? What steps will reproduce the issue?
+What operating system are you experiencing the problem on? Have you had the same results on a different
+operating system? What would you expect to be the outcome? All these details will help the developers fix any
 potential bugs.
 
 ## Feature Requests
 
 All feature requests should be posted to GitHub Discussions and tagged as `Type: Idea Bank`. The maintainers of
-slurmutils already know the features they want to incorporate into slurmutils, but they are always open to 
-new ideas and potential improvements. GitHub Discussions is the best place to post these types of requests 
-because it allows for feedback from the entire community and does not bloat the issue tracker. Please note that not 
-all feature requests will be incorporated into slurmutils. Also, feature requests posted on the issue tracker 
+slurmutils already know the features they want to incorporate into slurmutils, but they are always open to
+new ideas and potential improvements. GitHub Discussions is the best place to post these types of requests
+because it allows for feedback from the entire community and does not bloat the issue tracker. Please note that not
+all feature requests will be incorporated into slurmutils. Also, feature requests posted on the issue tracker
 will be tagged as `Type: Invalid` and closed. Lastly, please note that spamming the maintainers to incorporate a
 feature you want into slurmutils will not improve its likelihood of being implemented; it may result in you receiving
 a temporary ban from the repository.
 
 ## Pull Requests
 
-Good pull requests &mdash; patches, improvements, new features &mdash; are a huge help. These pull requests should 
+Good pull requests &mdash; patches, improvements, new features &mdash; are a huge help. These pull requests should
 remain focused in scope and should not contain unrelated commits.
 
-__Ask first__ before embarking on any __significant__ pull request (e.g. implementing new features, refactoring code, 
-incorporating a new test environment provider, etc.), otherwise you risk spending a lot of time working on something 
-that slurmutils's developers might not want to merge into the project! For trivial things, or things that do not require 
+__Ask first__ before embarking on any __significant__ pull request (e.g. implementing new features, refactoring code,
+incorporating a new test environment provider, etc.), otherwise you risk spending a lot of time working on something
+that slurmutils's developers might not want to merge into the project! For trivial things, or things that do not require
 a lot of your time, you can go ahead and make a pull request.
 
 Adhering to the following process is the best way to get your work
@@ -169,15 +169,15 @@ included in the project:
 8. [Open a Pull Request](https://help.github.com/articles/about-pull-requests/)
     with a clear title and description against the `main` branch.
 
-**IMPORTANT**: By submitting a patch, improvement, or new feature, you agree to allow the maintainers of slurmutils to 
+**IMPORTANT**: By submitting a patch, improvement, or new feature, you agree to allow the maintainers of slurmutils to
 license your contributions under the terms of the [GNU Lesser General Public License, v3.0](./LICENSE), and you agree to sign
 [Canonical's contributor license agreement](https://ubuntu.com/legal/contributors)
 
 ## Discussions
 
-GitHub's discussions are a great place to connect with other users of slurmutils as well as discuss potential 
-features and resolve personal support questions. It is expected that the users of slurmutils remain respectful of 
-each other. Discussion moderators reserve the right to suspend discussions and/or delete posts that do not follow 
+GitHub's discussions are a great place to connect with other users of slurmutils as well as discuss potential
+features and resolve personal support questions. It is expected that the users of slurmutils remain respectful of
+each other. Discussion moderators reserve the right to suspend discussions and/or delete posts that do not follow
 this rule.
 
 ## Code guidelines
@@ -188,13 +188,13 @@ The following guidelines must be adhered to if you are writing code to be merged
 
 * Adhere to the Python code style guidelines outlined in [Python Enhancement Proposal 8](https://pep8.org/).
 
-* Adhere to the Python docstring conventions outlined in 
+* Adhere to the Python docstring conventions outlined in
 [Python Enhancement Proposal 257](https://www.python.org/dev/peps/pep-0257/).
-  * *slurmutils docstrings follow the 
+  * *slurmutils docstrings follow the
   [Google docstring format](https://github.com/google/styleguide/blob/gh-pages/pyguide.md#38-comments-and-docstrings)*.
 
 ## License & CLA
 
-By contributing your code to slurmutils, you agree to license your contribution under the 
+By contributing your code to slurmutils, you agree to license your contribution under the
 [GNU Lesser General Public License, v3.0](./LICENSE), and you agree to
 sign [Canonical's contributor license agreement](https://ubuntu.com/legal/contributors).
