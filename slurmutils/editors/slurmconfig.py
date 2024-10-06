@@ -20,10 +20,10 @@ import logging
 import os
 from contextlib import contextmanager
 from pathlib import Path
-from typing import Union
+from typing import Optional, Union
 
 from ..models import SlurmConfig
-from .editor import dumper, loader
+from .editor import dumper, loader, set_file_permissions
 
 _logger = logging.getLogger("slurmutils")
 
@@ -40,9 +40,16 @@ def loads(content: str) -> SlurmConfig:
 
 
 @dumper
-def dump(config: SlurmConfig, file: Union[str, os.PathLike]) -> None:
+def dump(
+    config: SlurmConfig,
+    file: Union[str, os.PathLike],
+    mode: int = 0o644,
+    user: Optional[Union[str, int]] = None,
+    group: Optional[Union[str, int]] = None,
+) -> None:
     """Dump `slurm.conf` data model into slurm.conf file."""
     Path(file).write_text(dumps(config))
+    set_file_permissions(file, mode, user, group)
 
 
 def dumps(config: SlurmConfig) -> str:
@@ -51,12 +58,19 @@ def dumps(config: SlurmConfig) -> str:
 
 
 @contextmanager
-def edit(file: Union[str, os.PathLike]) -> SlurmConfig:
+def edit(
+    file: Union[str, os.PathLike],
+    mode: int = 0o644,
+    user: Optional[Union[str, int]] = None,
+    group: Optional[Union[str, int]] = None,
+) -> SlurmConfig:
     """Edit a slurm.conf file.
 
     Args:
-        file: Path to slurm.conf file to edit. If slurm.conf does
-            not exist at the specified file path, it will be created.
+        file: slurm.conf file to edit. An empty config will be created if it does not exist.
+        mode: Access mode to apply to the slurm.conf file. (Default: rw-r--r--)
+        user: User to set as owner of the slurm.conf file. (Default: $USER)
+        group: Group to set as owner of the slurm.conf file. (Default: None)
     """
     if not os.path.exists(file):
         _logger.warning("file %s not found. creating new empty slurm.conf configuration", file)
@@ -65,4 +79,4 @@ def edit(file: Union[str, os.PathLike]) -> SlurmConfig:
         config = load(file)
 
     yield config
-    dump(config, file)
+    dump(config, file, mode, user, group)

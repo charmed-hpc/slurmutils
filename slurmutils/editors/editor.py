@@ -15,10 +15,33 @@
 """Base methods for Slurm workload manager configuration file editors."""
 
 import logging
+import os
+import shutil
 from functools import wraps
-from os import path
+from pathlib import Path
+from typing import Optional, Union
 
 _logger = logging.getLogger("slurmutils")
+
+
+def set_file_permissions(
+    file: Union[str, os.PathLike],
+    mode: int = 0o644,
+    user: Optional[Union[str, int]] = None,
+    group: Optional[Union[str, int]] = None,
+) -> None:
+    """Set file permissions to configuration file.
+
+    Args:
+        file: File to apply permission settings to.
+        mode: Access mode to apply to file. (Default: rw-r--r--)
+        user: User to set as owner of file. (Default: $USER)
+        group: Group to set as owner of file. (Default: None)
+    """
+    Path(file).chmod(mode=mode)
+    if user is None:
+        user = os.getuid()
+    shutil.chown(file, user, group)
 
 
 def loader(func):
@@ -27,7 +50,7 @@ def loader(func):
     @wraps(func)
     def wrapper(*args, **kwargs):
         fin = args[0]
-        if not path.exists(fin):
+        if not os.path.exists(fin):
             raise FileNotFoundError(f"could not locate {fin}")
 
         _logger.debug("reading contents of %s", fin)
@@ -42,7 +65,7 @@ def dumper(func):
     @wraps(func)
     def wrapper(*args, **kwargs):
         fout = args[1]
-        if path.exists(fout):
+        if os.path.exists(fout):
             _logger.debug("overwriting current contents of %s", fout)
 
         _logger.debug("updating contents of %s", fout)
