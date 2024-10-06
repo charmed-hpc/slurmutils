@@ -20,11 +20,10 @@ import logging
 import os
 from contextlib import contextmanager
 from pathlib import Path
-from typing import Union
+from typing import Optional, Union
 
-from slurmutils.models import SlurmdbdConfig
-
-from .editor import dumper, loader
+from ..models import SlurmdbdConfig
+from .editor import dumper, loader, set_file_permissions
 
 _logger = logging.getLogger("slurmutils")
 
@@ -41,9 +40,16 @@ def loads(content: str) -> SlurmdbdConfig:
 
 
 @dumper
-def dump(config: SlurmdbdConfig, file: Union[str, os.PathLike]) -> None:
+def dump(
+    config: SlurmdbdConfig,
+    file: Union[str, os.PathLike],
+    mode: int = 0o644,
+    user: Optional[Union[str, int]] = None,
+    group: Optional[Union[str, int]] = None,
+) -> None:
     """Dump `slurmdbd.conf` data model into slurmdbd.conf file."""
     Path(file).write_text(dumps(config))
+    set_file_permissions(file, mode, user, group)
 
 
 def dumps(config: SlurmdbdConfig) -> str:
@@ -52,12 +58,19 @@ def dumps(config: SlurmdbdConfig) -> str:
 
 
 @contextmanager
-def edit(file: Union[str, os.PathLike]) -> SlurmdbdConfig:
+def edit(
+    file: Union[str, os.PathLike],
+    mode: int = 0o644,
+    user: Optional[Union[str, int]] = None,
+    group: Optional[Union[str, int]] = None,
+) -> SlurmdbdConfig:
     """Edit a slurmdbd.conf file.
 
     Args:
-        file: Path to slurmdbd.conf file to edit. If slurmdbd.conf does
-            not exist at the specified file path, it will be created.
+        file: slurmdbd.conf file to edit. An empty config will be created if it does not exist.
+        mode: Access mode to apply to the slurmdbd.conf file. (Default: rw-r--r--)
+        user: User to set as owner of the slurmdbd.conf file. (Default: $USER)
+        group: Group to set as owner of the slurmdbd.conf file. (Default: None)
     """
     if not os.path.exists(file):
         _logger.warning("file %s not found. creating new empty slurmdbd.conf configuration", file)
@@ -66,4 +79,4 @@ def edit(file: Union[str, os.PathLike]) -> SlurmdbdConfig:
         config = load(file)
 
     yield config
-    dump(config, file)
+    dump(config, file, mode, user, group)

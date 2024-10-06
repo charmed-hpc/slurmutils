@@ -20,10 +20,10 @@ import logging
 import os
 from contextlib import contextmanager
 from pathlib import Path
-from typing import Union
+from typing import Optional, Union
 
 from ..models import CgroupConfig
-from .editor import dumper, loader
+from .editor import dumper, loader, set_file_permissions
 
 _logger = logging.getLogger("slurmutils")
 
@@ -40,9 +40,16 @@ def loads(content: str) -> CgroupConfig:
 
 
 @dumper
-def dump(config: CgroupConfig, file: Union[str, os.PathLike]) -> None:
+def dump(
+    config: CgroupConfig,
+    file: Union[str, os.PathLike],
+    mode: int = 0o644,
+    user: Optional[Union[str, int]] = None,
+    group: Optional[Union[str, int]] = None,
+) -> None:
     """Dump `cgroup.conf` data model into cgroup.conf file."""
     Path(file).write_text(dumps(config))
+    set_file_permissions(file, mode, user, group)
 
 
 def dumps(config: CgroupConfig) -> str:
@@ -51,12 +58,19 @@ def dumps(config: CgroupConfig) -> str:
 
 
 @contextmanager
-def edit(file: Union[str, os.PathLike]) -> CgroupConfig:
+def edit(
+    file: Union[str, os.PathLike],
+    mode: int = 0o644,
+    user: Optional[Union[str, int]] = None,
+    group: Optional[Union[str, int]] = None,
+) -> CgroupConfig:
     """Edit a cgroup.conf file.
 
     Args:
-        file: Path to cgroup.conf file to edit. If cgroup.conf does
-            not exist at the specified file path, it will be created.
+        file: cgroup.conf file to edit. An empty config will be created if it does not exist.
+        mode: Access mode to apply to the cgroup.conf file. (Default: rw-r--r--)
+        user: User to set as owner of the cgroup.conf file. (Default: $USER)
+        group: Group to set as owner of the cgroup.conf file. (Default: None)
     """
     if not os.path.exists(file):
         _logger.warning("file %s not found. creating new empty cgroup.conf configuration", file)
@@ -65,4 +79,4 @@ def edit(file: Union[str, os.PathLike]) -> CgroupConfig:
         config = load(file)
 
     yield config
-    dump(config, file)
+    dump(config, file, mode, user, group)
