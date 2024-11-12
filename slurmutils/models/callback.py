@@ -64,7 +64,7 @@ def to_slurm_dict(value: Dict[str, Any]) -> str:
     result = []
     for k, v in value.items():
         if isinstance(v, bool) and v:
-            result.append(v)
+            result.append(k)
             continue
 
         result.append(f"{k}={v}")
