@@ -88,7 +88,7 @@ class SlurmdbdConfigOptionSet(_OptionSet):
     ArchiveUsage: Callback = Callback()
     AuthAltTypes: Callback = CommaSeparatorCallback
     AuthAltParameters: Callback = SlurmDictCallback
-    AuthInfo: Callback = Callback()
+    AuthInfo: Callback = SlurmDictCallback
     AuthType: Callback = Callback()
     CommitDelay: Callback = Callback()
     CommunicationParameters: Callback = SlurmDictCallback
@@ -151,7 +151,7 @@ class SlurmConfigOptionSet(_OptionSet):
     AcctGatherProfileType: Callback = Callback()
     AllowSpecResourcesUsage: Callback = Callback()
     AuthAltTypes: Callback = CommaSeparatorCallback
-    AuthAltParameters: Callback = Callback()
+    AuthAltParameters: Callback = SlurmDictCallback
     AuthInfo: Callback = SlurmDictCallback
     AuthType: Callback = Callback()
     BatchStartTimeout: Callback = Callback()
