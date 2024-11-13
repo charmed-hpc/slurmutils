@@ -77,6 +77,7 @@ class TestSlurmConfigEditor(TestCase):
         # Test descriptors for `slurm.conf` configuration options.
         with slurmconfig.edit("/etc/slurm/slurm.conf") as config:
             del config.inactive_limit
+            config.reboot_program = "systemctl reboot"
             config.max_job_count = 20000
             config.proctrack_type = "proctrack/linuxproc"
             config.plugin_dir.append("/snap/slurm/current/plugins")
@@ -87,6 +88,7 @@ class TestSlurmConfigEditor(TestCase):
 
         config = slurmconfig.load("/etc/slurm/slurm.conf")
         self.assertIsNone(config.inactive_limit)
+        self.assertEqual(config.reboot_program, "systemctl reboot")
         self.assertEqual(config.max_job_count, "20000")
         self.assertEqual(config.proctrack_type, "proctrack/linuxproc")
         self.assertListEqual(
