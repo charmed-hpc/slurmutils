@@ -32,7 +32,7 @@ from .callback import (
     Callback,
     ColonSeparatorCallback,
     CommaSeparatorCallback,
-    ReasonCallback,
+    QuoteCallback,
     SlurmDictCallback,
 )
 
@@ -276,7 +276,7 @@ class SlurmConfigOptionSet(_OptionSet):
     PropagatePrioProcess: Callback = Callback()
     PropagateResourceLimits: Callback = CommaSeparatorCallback
     PropagateResourceLimitsExcept: Callback = CommaSeparatorCallback
-    RebootProgram: Callback = Callback()
+    RebootProgram: Callback = QuoteCallback
     ReconfigFlags: Callback = Callback()
     KeepPartInfo: Callback = Callback()
     KeepPartState: Callback = Callback()
@@ -382,7 +382,7 @@ class NodeOptionSet(_OptionSet):
     Port: Callback = Callback()
     Procs: Callback = Callback()
     RealMemory: Callback = Callback()
-    Reason: Callback = ReasonCallback
+    Reason: Callback = QuoteCallback
     Sockets: Callback = Callback()
     SocketsPerBoard: Callback = Callback()
     State: Callback = Callback()
@@ -396,7 +396,7 @@ class DownNodeOptionSet(_OptionSet):
     """`slurm.conf` down node configuration options."""
 
     DownNodes: Callback = CommaSeparatorCallback
-    Reason: Callback = ReasonCallback
+    Reason: Callback = QuoteCallback
     State: Callback = Callback()
 
 
@@ -411,7 +411,7 @@ class FrontendNodeOptionSet(_OptionSet):
     DenyGroups: Callback = CommaSeparatorCallback
     DenyUsers: Callback = CommaSeparatorCallback
     Port: Callback = Callback()
-    Reason: Callback = ReasonCallback
+    Reason: Callback = QuoteCallback
     State: Callback = Callback()
 
 

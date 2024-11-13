@@ -19,7 +19,7 @@ __all__ = [
     "CommaSeparatorCallback",
     "ColonSeparatorCallback",
     "SlurmDictCallback",
-    "ReasonCallback",
+    "QuoteCallback",
 ]
 
 from typing import Any, Callable, Dict, NamedTuple, Optional
@@ -75,4 +75,6 @@ def to_slurm_dict(value: Dict[str, Any]) -> str:
 CommaSeparatorCallback = Callback(lambda v: v.split(","), lambda v: ",".join(v))
 ColonSeparatorCallback = Callback(lambda v: v.split(":"), lambda v: ":".join(v))
 SlurmDictCallback = Callback(from_slurm_dict, to_slurm_dict)
-ReasonCallback = Callback(None, lambda v: f'"{v}"')  # Ensure that 'Reason=...' is quoted properly.
+# Ensure that config values that allow spaces are properly escaped with quotes (")
+# when dumped into a string or file.
+QuoteCallback = Callback(None, lambda v: f'"{v}"')
