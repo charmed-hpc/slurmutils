@@ -12,21 +12,21 @@
 # You should have received a copy of the GNU Lesser General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-"""Data models for `cgroup.conf` configuration file."""
+"""Data models for `acct_gather.conf` configuration file."""
 
 from .model import BaseModel, clean, format_key, generate_descriptors, marshall_content, parse_line
-from .option import CgroupConfigOptionSet
+from .option import AcctGatherConfigOptionSet
 
 
-class CgroupConfig(BaseModel):
-    """`cgroup.conf` data model."""
+class AcctGatherConfig(BaseModel):
+    """`acct_gather.conf` data model."""
 
     def __init__(self, **kwargs) -> None:
-        super().__init__(CgroupConfigOptionSet, **kwargs)
+        super().__init__(AcctGatherConfigOptionSet, **kwargs)
 
     @classmethod
-    def from_str(cls, content: str) -> "CgroupConfig":
-        """Construct CgroupConfig data model from cgroup.conf format."""
+    def from_str(cls, content: str) -> "AcctGatherConfig":
+        """Construct AcctGatherConfig data model from acct_gather.conf format."""
         data = {}
         lines = content.splitlines()
         for index, line in enumerate(lines):
@@ -34,16 +34,16 @@ class CgroupConfig(BaseModel):
             if config is None:
                 continue
 
-            data.update(parse_line(CgroupConfigOptionSet, config))
+            data.update(parse_line(AcctGatherConfigOptionSet, config))
 
-        return CgroupConfig.from_dict(data)
+        return AcctGatherConfig.from_dict(data)
 
     def __str__(self) -> str:
-        """Return CgroupConfig data model in cgroup.conf format."""
+        """Return AcctGatherConfig data model in acct_gather.conf format."""
         result = []
-        result.extend(marshall_content(CgroupConfigOptionSet, self.dict()))
+        result.extend(marshall_content(AcctGatherConfigOptionSet, self.dict()))
         return "\n".join(result)
 
 
-for opt in CgroupConfigOptionSet.keys():
-    setattr(CgroupConfig, format_key(opt), property(*generate_descriptors(opt)))
+for opt in AcctGatherConfigOptionSet.keys():
+    setattr(AcctGatherConfig, format_key(opt), property(*generate_descriptors(opt)))
