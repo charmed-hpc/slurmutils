@@ -15,6 +15,7 @@
 """Configuration options for Slurm data models."""
 
 __all__ = [
+    "AcctGatherConfigOptionSet",
     "CgroupConfigOptionSet",
     "SlurmdbdConfigOptionSet",
     "SlurmConfigOptionSet",
@@ -46,6 +47,30 @@ class _OptionSet:
         """Yield iterable list of configuration option names."""
         for field in fields(cls):
             yield field.name
+
+
+@dataclass(frozen=True)
+class AcctGatherConfigOptionSet(_OptionSet):
+    """`acct_gather.conf` configuration options."""
+
+    EnergyIPMIFrequency: Callback = Callback()
+    EnergyIPMICalcAdjustment: Callback = Callback()
+    EnergyIPMIPowerSensors: Callback = Callback()
+    EnergyIPMIUsername: Callback = Callback()
+    EnergyIPMIPassword: Callback = Callback()
+    EnergyIPMIFrequency: Callback = Callback()
+    EnergyIPMITimeout: Callback = Callback()
+    ProfileHDF5Dir: Callback = Callback()
+    ProfileHDF5Default: Callback = Callback()
+    ProfileInfluxDBDatabase: Callback = Callback()
+    ProfileInfluxDBDefault: Callback = Callback()
+    ProfileInfluxDBHost: Callback = Callback()
+    ProfileInfluxDBPass: Callback = Callback()
+    ProfileInfluxDBRTPolicy: Callback = Callback()
+    ProfileInfluxDBUser: Callback = Callback()
+    ProfileInfluxDBTimeout: Callback = Callback()
+    InfinibandOFEDPort: Callback = Callback()
+    SysfsInterfaces: Callback = Callback()
 
 
 @dataclass(frozen=True)

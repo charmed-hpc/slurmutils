@@ -106,3 +106,25 @@ ConstrainDevices=yes
 ConstrainRAMSpace=yes
 ConstrainSwapSpace=yes
 """
+
+EXAMPLE_ACCT_GATHER_CONFIG = """#
+# `acct_gather.conf` file generated at 2024-09-18 15:10:44.652017 by slurmutils.
+#
+EnergyIPMIFrequency=1
+EnergyIPMICalcAdjustment=yes
+EnergyIPMIPowerSensors=Node=16,19;Socket1=19,26;KNC=16,19
+EnergyIPMIUsername=testipmiusername
+EnergyIPMIPassword=testipmipassword
+EnergyIPMITimeout=10
+ProfileHDF5Dir=/mydir
+ProfileHDF5Default=ALL
+ProfileInfluxDBDatabase=acct_gather_db
+ProfileInfluxDBDefault=ALL
+ProfileInfluxDBHost=testhostname
+ProfileInfluxDBPass=testpassword
+ProfileInfluxDBRTPolicy=testpolicy
+ProfileInfluxDBUser=testuser
+ProfileInfluxDBTimeout=10
+InfinibandOFEDPort=0
+SysfsInterfaces=enp0s1
+"""
