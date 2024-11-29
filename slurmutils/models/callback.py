@@ -18,11 +18,12 @@ __all__ = [
     "Callback",
     "CommaSeparatorCallback",
     "ColonSeparatorCallback",
+    "EnergyIPMIPowerSensorsCallback",
     "SlurmDictCallback",
     "QuoteCallback",
 ]
 
-from typing import Any, Callable, Dict, NamedTuple, Optional
+from typing import Any, Callable, Dict, List, NamedTuple, Optional
 
 
 class Callback(NamedTuple):
@@ -78,3 +79,27 @@ SlurmDictCallback = Callback(from_slurm_dict, to_slurm_dict)
 # Ensure that config values that allow spaces are properly escaped with quotes (")
 # when dumped into a string or file.
 QuoteCallback = Callback(None, lambda v: f'"{v}"')
+
+
+def from_energy_ipmi_power_sensors(value: str) -> Dict[str, List[str]]:
+    """Assemble and return the power sensors dict."""
+    result = {}
+    for opt in value.split(";"):
+        k, v = opt.split("=", maxsplit=1)
+        result[k] = v.split(",")
+
+    return result
+
+
+def to_energy_ipmi_power_sensors(value: Dict[str, List[str]]) -> str:
+    """Assemble and return the power sensors string."""
+    result = []
+    for k, v in value.items():
+        result.append(f"{k}={','.join(v)}")
+
+    return ";".join(result)
+
+
+EnergyIPMIPowerSensorsCallback = Callback(
+    from_energy_ipmi_power_sensors, to_energy_ipmi_power_sensors
+)
