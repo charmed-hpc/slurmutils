@@ -33,6 +33,7 @@ from .callback import (
     Callback,
     ColonSeparatorCallback,
     CommaSeparatorCallback,
+    EnergyIPMIPowerSensorsCallback,
     QuoteCallback,
     SlurmDictCallback,
 )
@@ -55,15 +56,15 @@ class AcctGatherConfigOptionSet(_OptionSet):
 
     EnergyIPMIFrequency: Callback = Callback()
     EnergyIPMICalcAdjustment: Callback = Callback()
-    EnergyIPMIPowerSensors: Callback = Callback()
+    EnergyIPMIPowerSensors: Callback = EnergyIPMIPowerSensorsCallback
     EnergyIPMIUsername: Callback = Callback()
     EnergyIPMIPassword: Callback = Callback()
     EnergyIPMIFrequency: Callback = Callback()
     EnergyIPMITimeout: Callback = Callback()
     ProfileHDF5Dir: Callback = Callback()
-    ProfileHDF5Default: Callback = Callback()
+    ProfileHDF5Default: Callback = CommaSeparatorCallback
     ProfileInfluxDBDatabase: Callback = Callback()
-    ProfileInfluxDBDefault: Callback = Callback()
+    ProfileInfluxDBDefault: Callback = CommaSeparatorCallback
     ProfileInfluxDBHost: Callback = Callback()
     ProfileInfluxDBPass: Callback = Callback()
     ProfileInfluxDBRTPolicy: Callback = Callback()
