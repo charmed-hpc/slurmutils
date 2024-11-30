@@ -51,7 +51,7 @@ class TestAcctGatherConfigEditor(TestCase):
         self.assertEqual(config.profile_influx_db_user, "testuser")
         self.assertEqual(config.profile_influx_db_timeout, "10")
         self.assertEqual(config.infiniband_ofed_port, "0")
-        self.assertEqual(config.sysfs_interfaces, "enp0s1")
+        self.assertEqual(config.sysfs_interfaces, ["enp0s1"])
 
         config = acctgatherconfig.loads(EXAMPLE_ACCT_GATHER_CONFIG)
         # The new config and old config should not be equal since the
@@ -81,7 +81,7 @@ class TestAcctGatherConfigEditor(TestCase):
             config.profile_influx_db_user = "testuser1"
             config.profile_influx_db_timeout = "20"
             config.infiniband_ofed_port = "1"
-            config.sysfs_interfaces = "enp0s2"
+            config.sysfs_interfaces = ["enp0s2"]
 
         config = acctgatherconfig.load("/etc/slurm/acct_gather.conf")
         self.assertEqual(config.energy_ipmi_frequency, "2")
@@ -103,4 +103,4 @@ class TestAcctGatherConfigEditor(TestCase):
         self.assertEqual(config.profile_influx_db_user, "testuser1")
         self.assertEqual(config.profile_influx_db_timeout, "20")
         self.assertEqual(config.infiniband_ofed_port, "1")
-        self.assertEqual(config.sysfs_interfaces, "enp0s2")
+        self.assertEqual(config.sysfs_interfaces, ["enp0s2"])

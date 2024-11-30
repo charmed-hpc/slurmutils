@@ -71,7 +71,7 @@ class AcctGatherConfigOptionSet(_OptionSet):
     ProfileInfluxDBUser: Callback = Callback()
     ProfileInfluxDBTimeout: Callback = Callback()
     InfinibandOFEDPort: Callback = Callback()
-    SysfsInterfaces: Callback = Callback()
+    SysfsInterfaces: Callback = CommaSeparatorCallback
 
 
 @dataclass(frozen=True)
