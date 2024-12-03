@@ -14,6 +14,7 @@
 
 """Editors for Slurm workload manager configuration files."""
 
+from . import acctgatherconfig as acctgatherconfig
 from . import cgroupconfig as cgroupconfig
 from . import slurmconfig as slurmconfig
 from . import slurmdbdconfig as slurmdbdconfig
