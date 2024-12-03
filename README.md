@@ -15,9 +15,10 @@ slurmutils package include:
 
 #### `from slurmutils.editors import ...`
 
+* `acctgatherconfig`: An editor for _acct_gather.conf_ configuration files.
+* `cgroupconfig`: An editor for _cgroup.conf_ configuration files.
 * `slurmconfig`: An editor for _slurm.conf_ configuration files.
 * `slurmdbdconfig`: An editor for _slurmdbd.conf_ configuration files.
-* `cgroupconfig`: An editor for _cgroup.conf_ configuration files.
 
 For more information on how to use or contribute to slurmutils, 
 check out the [Getting Started](#-getting-started) and [Development](#-development) 
@@ -51,6 +52,37 @@ $ poetry install
 
 This module provides an API for editing files, and creating new files if they do not
 exist. Here's some operations you can perform on files using the editors in this module:
+
+##### `acctgatherconfig`
+
+###### Edit a pre-existing _acct_gather.conf_ configuration file
+
+```python
+from slurmutils.editors import acctgatherconfig
+
+with acctgatherconfig.edit("/etc/slurm/acct_gather.conf") as config:
+    config.profile_influx_db_database = "test_acct_gather_db"
+    config.profile_influx_db_default = ["NONE"]
+    config.profile_influx_db_host = "testhostname1"
+    config.profile_influx_db_pass = "testpassword1"
+    config.profile_influx_dbrt_policy = "testpolicy1"
+    config.profile_influx_db_user = "testuser1"
+    config.profile_influx_db_timeout = "20"
+```
+
+##### `cgroupconfig`
+
+###### Edit a pre-existing _cgroup.conf_ configuration file
+
+```python
+from slurmutils.editors import cgroupconfig
+
+with cgroupconfig.edit("/etc/slurm/cgroup.conf") as config:
+    config.constrain_cores = "yes"
+    config.constrain_devices = "yes"
+    config.constrain_ram_space = "yes"
+    config.constrain_swap_space = "yes"
+```
 
 ##### `slurmconfig`
 
@@ -96,18 +128,6 @@ with slurmdbdconfig.edit("/etc/slurm/slurmdbd.conf") as config:
     config.debug_flags = ["DB_EVENT", "DB_JOB", "DB_USAGE"]
     del config.auth_alt_types
     del config.auth_alt_parameters
-```
-
-##### `cgroupconfig`
-
-```python
-from slurmutils.editors import cgroupconfig
-
-with cgroupconfig.edit("/etc/slurm/cgroup.conf") as config:
-    config.constrain_cores = "yes"
-    config.constrain_devices = "yes"
-    config.constrain_ram_space = "yes"
-    config.constrain_swap_space = "yes"
 ```
 
 ## 🤔 What's next?
