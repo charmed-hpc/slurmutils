@@ -14,7 +14,7 @@
 
 """Data models for common Slurm objects."""
 
-from .acct_gather import AcctGatherConfig as AcctGatherConfig
+from .acctgather import AcctGatherConfig as AcctGatherConfig
 from .cgroup import CgroupConfig as CgroupConfig
 from .slurm import DownNodes as DownNodes
 from .slurm import FrontendNode as FrontendNode
