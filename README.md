@@ -16,6 +16,7 @@ slurmutils package include:
 #### `from slurmutils.editors import ...`
 
 * `acctgatherconfig`: An editor for _acct_gather.conf_ configuration files.
+* `gresconfig`: An editor for _gres.conf_ configuration files.
 * `cgroupconfig`: An editor for _cgroup.conf_ configuration files.
 * `slurmconfig`: An editor for _slurm.conf_ configuration files.
 * `slurmdbdconfig`: An editor for _slurmdbd.conf_ configuration files.
@@ -82,6 +83,33 @@ with cgroupconfig.edit("/etc/slurm/cgroup.conf") as config:
     config.constrain_devices = "yes"
     config.constrain_ram_space = "yes"
     config.constrain_swap_space = "yes"
+```
+
+##### `gresconfig`
+
+###### Edit a pre-existing _gres.conf_ configuration file
+
+```python
+from slurmutils.editors import gresconfig
+from slurmutils.models import GRESName, GRESNode
+
+with gresconfig.edit("/etc/slurm/gres.conf") as config:
+    name = GRESName(
+            Name="gpu",
+            Type="epyc",
+            File="/dev/amd4",
+            Cores=["0", "1"],
+        )
+    node = GRESNode(
+        NodeName="juju-abc654-[1-20]",
+        Name="gpu",
+        Type="epyc",
+        File="/dev/amd[0-3]",
+        Count="12G",
+    )
+    config.auto_detect = "rsmi"
+    config.names.append(name.dict())
+    config.nodes.updaten(node.dict())
 ```
 
 ##### `slurmconfig`

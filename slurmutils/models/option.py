@@ -17,6 +17,9 @@
 __all__ = [
     "AcctGatherConfigOptionSet",
     "CgroupConfigOptionSet",
+    "GRESConfigOptionSet",
+    "GRESNameOptionSet",
+    "GRESNodeOptionSet",
     "SlurmdbdConfigOptionSet",
     "SlurmConfigOptionSet",
     "NodeOptionSet",
@@ -95,6 +98,34 @@ class CgroupConfigOptionSet(_OptionSet):
     MemorySwappiness: Callback = Callback()
     MinRAMSpace: Callback = Callback()
     SignalChildrenProcesses: Callback = Callback()
+
+
+@dataclass(frozen=True)
+class GRESConfigOptionSet(_OptionSet):
+    """`gres.conf` configuration options."""
+
+    AutoDetect: Callback = Callback()
+
+
+@dataclass(frozen=True)
+class GRESNameOptionSet(GRESConfigOptionSet):
+    """`gres.conf` generic configuration options."""
+
+    Count: Callback = Callback()
+    Cores: Callback = CommaSeparatorCallback
+    File: Callback = Callback()
+    Flags: Callback = CommaSeparatorCallback
+    Links: Callback = CommaSeparatorCallback
+    MultipleFiles: Callback = Callback()
+    Name: Callback = Callback()
+    Type: Callback = Callback()
+
+
+@dataclass(frozen=True)
+class GRESNodeOptionSet(GRESNameOptionSet):
+    """`gres.conf` node configuration options."""
+
+    NodeName: Callback = Callback()
 
 
 @dataclass(frozen=True)

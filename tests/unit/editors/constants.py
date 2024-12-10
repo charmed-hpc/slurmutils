@@ -12,6 +12,23 @@
 # You should have received a copy of the GNU Lesser General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
+EXAMPLE_GRES_CONFIG = """#
+# `gres.conf` file generated at 2024-12-10 14:17:35.161642 by slurmutils.
+#
+AutoDetect=nvml
+Name=gpu Type=gp100  File=/dev/nvidia0 Cores=0,1
+Name=gpu Type=gp100  File=/dev/nvidia1 Cores=0,1
+Name=gpu Type=p6000  File=/dev/nvidia2 Cores=2,3
+Name=gpu Type=p6000  File=/dev/nvidia3 Cores=2,3
+Name=mps Count=200  File=/dev/nvidia0
+Name=mps Count=200  File=/dev/nvidia1
+Name=mps Count=100  File=/dev/nvidia2
+Name=mps Count=100  File=/dev/nvidia3
+Name=bandwidth Type=lustre Count=4G Flags=CountOnly
+
+NodeName=juju-c9c6f-[1-10] Name=gpu Type=rtx File=/dev/nvidia[0-3] Count=8G
+"""
+
 EXAMPLE_SLURM_CONFIG = """#
 # `slurm.conf` file generated at 2024-01-30 17:18:36.171652 by slurmutils.
 #

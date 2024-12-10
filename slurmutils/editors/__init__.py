@@ -16,5 +16,6 @@
 
 from . import acctgatherconfig as acctgatherconfig
 from . import cgroupconfig as cgroupconfig
+from . import gresconfig as gresconfig
 from . import slurmconfig as slurmconfig
 from . import slurmdbdconfig as slurmdbdconfig
