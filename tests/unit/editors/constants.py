@@ -26,7 +26,8 @@ Name=mps Count=100  File=/dev/nvidia2
 Name=mps Count=100  File=/dev/nvidia3
 Name=bandwidth Type=lustre Count=4G Flags=CountOnly
 
-NodeName=juju-c9c6f-[1-10] Name=gpu Type=rtx File=/dev/nvidia[0-3] Count=8G
+NodeName=juju-abc654-1 Name=gpu Type=tesla_t4 File=/dev/nvidia[0-1] Count=8G
+NodeName=juju-abc654-1 Name=gpu Type=l40s File=/dev/nvidia[2-3] Count=12G
 """
 
 EXAMPLE_SLURM_CONFIG = """#
