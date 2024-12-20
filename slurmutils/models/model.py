@@ -15,6 +15,7 @@
 """Base classes and methods for composing Slurm data models."""
 
 __all__ = [
+    "BaseMapping",
     "BaseModel",
     "clean",
     "format_key",
@@ -28,7 +29,11 @@ import json
 import re
 import shlex
 from abc import ABC, abstractmethod
-from typing import Any, Callable, Dict, List, Optional, Tuple
+from collections.abc import Callable, Iterable, MutableMapping
+from typing import Any
+
+from jsonschema import ValidationError, validate
+from typing_extensions import Self
 
 from ..exceptions import ModelError
 
@@ -57,7 +62,52 @@ def format_key(key: str) -> str:
     return _camelize.sub(r"_", key).lower()
 
 
-def generate_descriptors(opt: str) -> Tuple[Callable, Callable, Callable]:
+def _expand_iter(i: Iterable[Any]) -> list[Any]:
+    """Recursively expand a complex iterable with nested Slurm data models.
+
+    Args:
+        i: Iterable to expand.
+    """
+    out = []
+    for v in i:
+        if issubclass(type(v), BaseModel):
+            out.append(_expand_dict(v.dict()))
+        elif issubclass(type(v), MutableMapping):
+            out.append(_expand_dict(v))
+        elif isinstance(v, list | tuple):
+            out.append(_expand_iter(v))
+        else:
+            out.append(v)
+
+    return out
+
+
+def _expand_dict(d: MutableMapping[str, Any]) -> dict[str, Any]:
+    """Recursively expand a complex dictionary with nested Slurm data models.
+
+    Args:
+        d: Dictionary to expand.
+    """
+    out = {}
+    for k, v in d.items():
+        if issubclass(type(v), BaseModel):
+            out.update({k: _expand_dict(v.dict())})
+        elif issubclass(type(v), MutableMapping):
+            out.update({k: _expand_dict(v)})
+        elif isinstance(v, list | tuple):
+            out.update({k: _expand_iter(v)})
+        else:
+            out[k] = v
+
+    return out
+
+
+def expand(d: MutableMapping[str, Any]) -> dict[str, Any]:
+    """Expand a complex dictionary with nested Slurm data models."""
+    return _expand_dict(d)
+
+
+def generate_descriptors(opt: str) -> tuple[Callable, Callable, Callable]:
     """Generate descriptors for retrieving and mutating configuration options.
 
     Args:
@@ -76,7 +126,7 @@ def generate_descriptors(opt: str) -> Tuple[Callable, Callable, Callable]:
     return getter, setter, deleter
 
 
-def clean(line: str) -> Optional[str]:
+def clean(line: str) -> str | None:
     """Clean line before further processing.
 
     Returns:
@@ -85,7 +135,7 @@ def clean(line: str) -> Optional[str]:
     return cleaned if (cleaned := line.split("#", maxsplit=1)[0]) != "" else None
 
 
-def parse_line(options, line: str) -> Dict[str, Any]:
+def parse_line(options, line: str) -> dict[str, Any]:
     """Parse configuration line.
 
     Args:
@@ -110,7 +160,7 @@ def parse_line(options, line: str) -> Dict[str, Any]:
     return data
 
 
-def marshall_content(options, line: Dict[str, Any]) -> List[str]:
+def marshall_content(options, line: MutableMapping[str, Any]) -> list[str]:
     """Marshall data model content back into configuration line.
 
     Args:
@@ -148,8 +198,16 @@ class BaseModel(ABC):
 
         self.data = kwargs
 
+    def _slice(self, exclude: Iterable[str]) -> dict[str, Any]:
+        """Slice the internal data store by excluding specific keys.
+
+        Args:
+            exclude: List of keys to exclude from slice.
+        """
+        return {k: v for k, v in self.data.items() if k not in exclude}
+
     @classmethod
-    def from_dict(cls, data: Dict[str, Any]):
+    def from_dict(cls, data: MutableMapping[str, Any]):
         """Construct new model from dictionary."""
         return cls(**data)
 
@@ -168,7 +226,7 @@ class BaseModel(ABC):
     def __str__(self) -> str:
         """Return model as configuration string."""
 
-    def dict(self) -> Dict[str, Any]:
+    def dict(self) -> dict[str, Any]:
         """Return model as dictionary."""
         return copy.deepcopy(self.data)
 
@@ -179,3 +237,66 @@ class BaseModel(ABC):
     def update(self, other) -> None:
         """Update current data model content with content of other data model."""
         self.data.update(other.data)
+
+
+class BaseMapping(MutableMapping[str, Any], ABC):
+    """Base map for Slurm data model mappings."""
+
+    def __init__(self, d: MutableMapping[str, Any] | None = None) -> None:
+        if not d:
+            self._data = {}
+            return
+
+        try:
+            d = expand(d)
+            validate(d, schema=self._schema)
+            self._data = json.loads(json.dumps(d), object_hook=self._decoder)
+        except ValidationError as e:
+            raise ModelError(e.message)
+
+    @property
+    @abstractmethod
+    def _schema(self) -> dict[str, Any]:
+        """Get data model JSON schema."""
+
+    @property
+    @abstractmethod
+    def _decoder(self) -> Any:
+        """Get data model decoder."""
+
+    @classmethod
+    def from_dict(cls, d: MutableMapping[str, Any]) -> Self:
+        """Create model from dictionary."""
+        return cls(d)
+
+    @classmethod
+    def from_json(cls, s: str | bytes | bytearray) -> Self:
+        """Create model from JSON object."""
+        return cls(json.loads(s))
+
+    def dict(self) -> dict[str, Any]:
+        """Return data model mapping as an expanded dictionary object."""
+        return expand(self._data)
+
+    def json(self) -> str:
+        """Return model mapping as a JSON object."""
+        return json.dumps(expand(self._data))
+
+    @abstractmethod
+    def __str__(self) -> str:  # noqa D105
+        pass
+
+    def __getitem__(self, key: str, /) -> Any:  # noqa D105
+        return self._data[key]
+
+    def __setitem__(self, key: str, value: Any, /) -> None:  # noqa D105
+        self._data[key] = value
+
+    def __delitem__(self, key: str, /) -> None:  # noqa D105
+        del self._data[key]
+
+    def __len__(self) -> int:  # noqa D105
+        return len(self._data)
+
+    def __iter__(self) -> Iterable[str]:  # noqa D105
+        return iter(self._data)
