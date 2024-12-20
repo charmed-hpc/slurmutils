@@ -16,8 +16,8 @@ slurmutils package include:
 #### `from slurmutils.editors import ...`
 
 * `acctgatherconfig`: An editor for _acct_gather.conf_ configuration files.
-* `gresconfig`: An editor for _gres.conf_ configuration files.
 * `cgroupconfig`: An editor for _cgroup.conf_ configuration files.
+* `gresconfig`: An editor for _gres.conf_ configuration files.
 * `slurmconfig`: An editor for _slurm.conf_ configuration files.
 * `slurmdbdconfig`: An editor for _slurmdbd.conf_ configuration files.
 
@@ -94,13 +94,13 @@ from slurmutils.editors import gresconfig
 from slurmutils.models import GRESName, GRESNode
 
 with gresconfig.edit("/etc/slurm/gres.conf") as config:
-    name = GRESName(
+    new_gres = GRESName(
             Name="gpu",
             Type="epyc",
             File="/dev/amd4",
             Cores=["0", "1"],
         )
-    node = GRESNode(
+    new_node = GRESNode(
         NodeName="juju-abc654-[1-20]",
         Name="gpu",
         Type="epyc",
@@ -108,8 +108,8 @@ with gresconfig.edit("/etc/slurm/gres.conf") as config:
         Count="12G",
     )
     config.auto_detect = "rsmi"
-    config.names.append(name.dict())
-    config.nodes.updaten(node.dict())
+    config.names[new_gres.name] = [new_gres]
+    config.nodes[new_node.node_name] = [new_node]
 ```
 
 ##### `slurmconfig`
