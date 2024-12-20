@@ -17,7 +17,7 @@ from constants import EXAMPLE_GRES_CONFIG
 from pyfakefs.fake_filesystem_unittest import TestCase
 
 from slurmutils.editors import gresconfig
-from slurmutils.models import GRESName, GRESNode
+from slurmutils.models import GRESName, GRESNameMapping, GRESNode, GRESNodeMapping
 
 
 class TestGRESConfigEditor(TestCase):
@@ -31,29 +31,45 @@ class TestGRESConfigEditor(TestCase):
         """Test `loads` function from the `gresconfig` editor module."""
         config = gresconfig.loads(EXAMPLE_GRES_CONFIG)
         self.assertEqual(config.auto_detect, "nvml")
-        self.assertListEqual(
-            config.names,
-            [
-                {"Name": "gpu", "Type": "gp100", "File": "/dev/nvidia0", "Cores": ["0", "1"]},
-                {"Name": "gpu", "Type": "gp100", "File": "/dev/nvidia1", "Cores": ["0", "1"]},
-                {"Name": "gpu", "Type": "p6000", "File": "/dev/nvidia2", "Cores": ["2", "3"]},
-                {"Name": "gpu", "Type": "p6000", "File": "/dev/nvidia3", "Cores": ["2", "3"]},
-                {"Name": "mps", "Count": "200", "File": "/dev/nvidia0"},
-                {"Name": "mps", "Count": "200", "File": "/dev/nvidia1"},
-                {"Name": "mps", "Count": "100", "File": "/dev/nvidia2"},
-                {"Name": "mps", "Count": "100", "File": "/dev/nvidia3"},
-                {"Name": "bandwidth", "Type": "lustre", "Count": "4G", "Flags": ["CountOnly"]},
-            ],
+        self.assertDictEqual(
+            config.names.dict(),
+            {
+                "gpu": [
+                    {"Name": "gpu", "Type": "gp100", "File": "/dev/nvidia0", "Cores": ["0", "1"]},
+                    {"Name": "gpu", "Type": "gp100", "File": "/dev/nvidia1", "Cores": ["0", "1"]},
+                    {"Name": "gpu", "Type": "p6000", "File": "/dev/nvidia2", "Cores": ["2", "3"]},
+                    {"Name": "gpu", "Type": "p6000", "File": "/dev/nvidia3", "Cores": ["2", "3"]},
+                ],
+                "mps": [
+                    {"Name": "mps", "Count": "200", "File": "/dev/nvidia0"},
+                    {"Name": "mps", "Count": "200", "File": "/dev/nvidia1"},
+                    {"Name": "mps", "Count": "100", "File": "/dev/nvidia2"},
+                    {"Name": "mps", "Count": "100", "File": "/dev/nvidia3"},
+                ],
+                "bandwidth": [
+                    {"Name": "bandwidth", "Type": "lustre", "Count": "4G", "Flags": ["CountOnly"]},
+                ],
+            },
         )
         self.assertDictEqual(
-            config.nodes,
+            config.nodes.dict(),
             {
-                "juju-c9c6f-[1-10]": {
-                    "Name": "gpu",
-                    "Type": "rtx",
-                    "File": "/dev/nvidia[0-3]",
-                    "Count": "8G",
-                }
+                "juju-abc654-1": [
+                    {
+                        "NodeName": "juju-abc654-1",
+                        "Name": "gpu",
+                        "Type": "tesla_t4",
+                        "File": "/dev/nvidia[0-1]",
+                        "Count": "8G",
+                    },
+                    {
+                        "NodeName": "juju-abc654-1",
+                        "Name": "gpu",
+                        "Type": "l40s",
+                        "File": "/dev/nvidia[2-3]",
+                        "Count": "12G",
+                    },
+                ]
             },
         )
 
@@ -66,13 +82,13 @@ class TestGRESConfigEditor(TestCase):
 
     def test_edit(self) -> None:
         """Test `edit` context manager from the `gresconfig` editor module."""
-        name = GRESName(
+        new_name = GRESName(
             Name="gpu",
             Type="epyc",
             File="/dev/amd4",
             Cores=["0", "1"],
         )
-        node = GRESNode(
+        new_node = GRESNode(
             NodeName="juju-abc654-[1-20]",
             Name="gpu",
             Type="epyc",
@@ -83,13 +99,13 @@ class TestGRESConfigEditor(TestCase):
         # Set new values with each accessor.
         with gresconfig.edit("/etc/slurm/gres.conf") as config:
             config.auto_detect = "rsmi"
-            config.names = [name.dict()]
-            config.nodes = node.dict()
+            config.names["gpu"].append(new_name)
+            config.nodes[new_node.node_name] = [new_node]
 
         config = gresconfig.load("/etc/slurm/gres.conf")
         self.assertEqual(config.auto_detect, "rsmi")
-        self.assertListEqual(config.names, [name.dict()])
-        self.assertDictEqual(config.nodes, node.dict())
+        self.assertDictEqual(config.names["gpu"][-1].dict(), new_name.dict())
+        self.assertDictEqual(config.nodes["juju-abc654-[1-20]"][0].dict(), new_node.dict())
 
         # Delete all configured values from GRES configuration.
         with gresconfig.edit("/etc/slurm/gres.conf") as config:
@@ -99,5 +115,5 @@ class TestGRESConfigEditor(TestCase):
 
         config = gresconfig.load("/etc/slurm/gres.conf")
         self.assertIsNone(config.auto_detect)
-        self.assertListEqual(config.names, [])
-        self.assertDictEqual(config.nodes, {})
+        self.assertEqual(config.names, GRESNameMapping())
+        self.assertEqual(config.nodes, GRESNodeMapping())

@@ -16,6 +16,7 @@
 from unittest import TestCase
 
 from slurmutils.models import GRESConfig, GRESName, GRESNode
+from slurmutils.models.gres import GRESNameMapping, GRESNodeMapping
 
 
 class TestGRESConfig(TestCase):
@@ -28,12 +29,11 @@ class TestGRESConfig(TestCase):
         )
         self.nodes = GRESNode.from_dict(
             {
-                "juju-c9c6f-[1-10]": {
-                    "Name": "gpu",
-                    "Type": "rtx",
-                    "File": "/dev/nvidia[0-3]",
-                    "Count": "8G",
-                }
+                "NodeName": "juju-c9c6f-[1-10]",
+                "Name": "gpu",
+                "Type": "rtx",
+                "File": "/dev/nvidia[0-3]",
+                "Count": "8G",
             }
         )
 
@@ -47,17 +47,19 @@ class TestGRESConfig(TestCase):
 
     def test_names(self) -> None:
         """Test `Names` descriptor."""
-        self.config.names = [self.names.dict()]
-        self.assertListEqual(self.config.names, [self.names.dict()])
+        new = GRESNameMapping({self.names.name: [self.names]})
+        self.config.names = new
+        self.assertEqual(self.config.names, new)
         del self.config.names
-        self.assertListEqual(self.config.names, [])
+        self.assertEqual(self.config.names, GRESNameMapping())
 
     def test_nodes(self) -> None:
         """Test `Nodes` descriptor."""
-        self.config.nodes = self.nodes.dict()
-        self.assertDictEqual(self.config.nodes, self.nodes.dict())
+        new = GRESNodeMapping({self.nodes.node_name: [self.nodes]})
+        self.config.nodes = new
+        self.assertEqual(self.config.nodes, new)
         del self.config.nodes
-        self.assertDictEqual(self.config.nodes, {})
+        self.assertEqual(self.config.nodes, GRESNodeMapping())
 
 
 class TestGRESName(TestCase):
