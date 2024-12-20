@@ -14,20 +14,60 @@
 
 """Data models for `gres.conf` configuration file."""
 
-__all__ = ["GRESConfig", "GRESName", "GRESNode"]
+__all__ = ["GRESConfig", "GRESName", "GRESNode", "GRESNodeMapping", "GRESNameMapping"]
 
-import copy
+from abc import ABC
+from collections.abc import MutableMapping, Sequence
+from itertools import chain
 from typing import Any
 
-from .model import BaseModel, clean, marshall_content, parse_line
+from jsonschema import ValidationError, validate
+
+from .model import BaseMapping, BaseModel, clean, marshall_content, parse_line
 from .option import GRESConfigOptionSet, GRESNameOptionSet, GRESNodeOptionSet
+from .schema import (
+    GRES_NAME_MAPPING_SCHEMA,
+    GRES_NAME_SCHEMA,
+    GRES_NODE_MAPPING_SCHEMA,
+    GRES_NODE_SCHEMA,
+)
+
+
+def _gres_name_decoder(o: Any) -> Any:
+    """Decode `gres.conf` data model within JSON object.
+
+    Args:
+        o: JSON object to decode.
+    """
+    try:
+        validate(o, schema=GRES_NAME_SCHEMA)
+        return GRESName.from_dict(o)
+    except ValidationError:
+        pass
+
+    return o
+
+
+def _gres_node_decoder(o: Any) -> Any:
+    """Decode `gres.conf` node data model within a JSON object.
+
+    Args:
+        o: JSON object in to decode.
+    """
+    try:
+        validate(o, schema=GRES_NODE_SCHEMA)
+        return GRESNode.from_dict(o)
+    except ValidationError:
+        pass
+
+    return o
 
 
 class GRESName(BaseModel):
     """`gres.conf` name data model."""
 
-    def __init__(self, *, Name, **kwargs) -> None:  # noqa N803
-        super().__init__(GRESNameOptionSet, Name=Name, **kwargs)
+    def __init__(self, **kwargs) -> None:  # noqa N803
+        super().__init__(GRESNameOptionSet, **kwargs)
 
     @classmethod
     def from_str(cls, content: str) -> "GRESName":
@@ -81,7 +121,7 @@ class GRESName(BaseModel):
         return self.data.get("Cores", None)
 
     @cores.setter
-    def cores(self, value: list[str]) -> None:
+    def cores(self, value: Sequence[str]) -> None:
         self.data["Cores"] = value
 
     @cores.deleter
@@ -113,7 +153,7 @@ class GRESName(BaseModel):
         return self.data.get("Flags", None)
 
     @flags.setter
-    def flags(self, value: list[str]) -> None:
+    def flags(self, value: Sequence[str]) -> None:
         self.data["Flags"] = value
 
     @flags.deleter
@@ -129,7 +169,7 @@ class GRESName(BaseModel):
         return self.data.get("Links", None)
 
     @links.setter
-    def links(self, value: list[str]) -> None:
+    def links(self, value: Sequence[str]) -> None:
         self.data["Links"] = value
 
     @links.deleter
@@ -189,43 +229,70 @@ class GRESName(BaseModel):
 class GRESNode(GRESName):
     """`gres.conf` node data model."""
 
-    def __init__(self, *, NodeName: str, **kwargs):  # noqa N803
-        self.__node_name = NodeName
+    def __init__(self, **kwargs):  # noqa N803
         # Want to share `GRESName` descriptors, but not constructor.
         BaseModel.__init__(self, GRESNodeOptionSet, **kwargs)
 
     @classmethod
-    def from_dict(cls, data: dict[str, Any]) -> "GRESNode":
+    def from_dict(cls, data: MutableMapping[str, Any]) -> "GRESNode":
         """Construct `GRESNode` data model from dictionary object."""
-        node_name = list(data.keys())[0]
-        return cls(NodeName=node_name, **data[node_name])
+        return cls(**data)
 
     @classmethod
     def from_str(cls, content: str) -> "GRESNode":
         """Construct `GRESNode` data model from a gres.conf configuration line."""
         return cls(**parse_line(GRESNodeOptionSet, content))
 
-    def dict(self) -> dict[str, Any]:
-        """Return `GRESNode` data model as a dictionary object."""
-        return copy.deepcopy({self.__node_name: self.data})
-
     def __str__(self) -> str:
         """Return `GRESNode` data model as a gres.conf configuration line."""
-        line = [f"NodeName={self.__node_name}"]
-        line.extend(marshall_content(GRESNodeOptionSet, self.data))
-        return " ".join(line)
+        return " ".join(
+            [f"NodeName={self.node_name}"]
+            + marshall_content(GRESNodeOptionSet, self._slice(["NodeName"]))
+        )
 
     @property
     def node_name(self) -> str:
         """Node(s) the generic resource configuration will be applied to.
 
-        Value `NodeName` specification can use a Slurm hostlist specification.
+        Format of the value for `NodeName` can be in the Slurm hostlist specification format.
         """
-        return self.__node_name
+        return self.data["NodeName"]
 
     @node_name.setter
     def node_name(self, value: str) -> None:
-        self.__node_name = value
+        self.data["NodeName"] = value
+
+
+class _GRESBaseMapping(BaseMapping, ABC):
+    """Base `gres.conf` data model mapping."""
+
+    def __str__(self) -> str:
+        """Return `gres.conf` data model mapping as gres.conf configuration block."""
+        return "\n".join(str(gres) for gres in chain.from_iterable(self.values()))
+
+
+class GRESNameMapping(_GRESBaseMapping):
+    """Map of generic resource names to `gres.conf` name data models."""
+
+    @property
+    def _decoder(self) -> Any:
+        return _gres_name_decoder
+
+    @property
+    def _schema(self) -> dict[str, Any]:
+        return GRES_NAME_MAPPING_SCHEMA
+
+
+class GRESNodeMapping(_GRESBaseMapping):
+    """Map of node names to list of `gres.conf` node data models."""
+
+    @property
+    def _decoder(self) -> Any:
+        return _gres_node_decoder
+
+    @property
+    def _schema(self) -> dict[str, Any]:
+        return GRES_NODE_MAPPING_SCHEMA
 
 
 class GRESConfig(BaseModel):
@@ -234,51 +301,44 @@ class GRESConfig(BaseModel):
     def __init__(
         self,
         *,
-        Names: list[str] | None = None,  # noqa N803
-        Nodes: dict[str, Any] | None = None,  # noqa N803
+        Names: MutableMapping[str, Sequence[GRESName]] | None = None,  # noqa N803
+        Nodes: MutableMapping[str, Sequence[GRESNode]] | None = None,  # noqa N803
         **kwargs,
     ) -> None:
         super().__init__(GRESConfigOptionSet, **kwargs)
-        self.data["Names"] = Names or []
-        self.data["Nodes"] = Nodes or {}
+        self.data["Names"] = GRESNameMapping(Names)
+        self.data["Nodes"] = GRESNodeMapping(Nodes)
 
     @classmethod
     def from_str(cls, content: str) -> "GRESConfig":
         """Construct `gres.conf` data model from a gres.conf configuration file."""
-        data = {}
-        lines = content.splitlines()
-        for line in lines:
-            config = clean(line)
-            if config is None:
+        config = {"Names": GRESNameMapping(), "Nodes": GRESNodeMapping()}
+        for line in [clean(line) for line in content.splitlines()]:
+            if line is None:
                 continue
 
-            if config.startswith("Name"):
-                data["Names"] = data.get("Names", []) + [GRESName.from_str(config).dict()]
-            elif config.startswith("NodeName"):
-                nodes = data.get("Nodes", {})
-                nodes.update(GRESNode.from_str(config).dict())
-                data["Nodes"] = nodes
+            if line.startswith("Name"):
+                new = GRESName.from_str(line)
+                config["Names"][new.name] = config["Names"].get(new.name, []) + [new]
+            elif line.startswith("NodeName"):
+                new = GRESNode.from_str(line)
+                config["Nodes"][new.node_name] = config["Nodes"].get(new.node_name, []) + [new]
             else:
-                data.update(parse_line(GRESConfigOptionSet, config))
+                config.update(parse_line(GRESConfigOptionSet, line))
 
-        return GRESConfig.from_dict(data)
+        return GRESConfig(**config)
 
     def __str__(self) -> str:
-        """Return `gres.conf` data model in gres.conf format."""
-        data = self.dict()
-        global_auto_detect = data.pop("AutoDetect", None)
-        names = data.pop("Names", [])
-        nodes = data.pop("Nodes", {})
+        """Return `gres.conf` data model in gres.conf configuration format."""
+        out = []
+        if self.auto_detect:
+            out.append(f"AutoDetect={self.auto_detect}")
+        if self.names:
+            out.append(str(self.names))
+        if self.nodes:
+            out.append(str(self.nodes))
 
-        content = []
-        if global_auto_detect:
-            content.append(f"AutoDetect={global_auto_detect}")
-        if names:
-            content.extend([str(GRESName(**name)) for name in names])
-        if nodes:
-            content.extend([str(GRESNode(NodeName=k, **v)) for k, v in nodes.items()])
-
-        return "\n".join(content) + "\n"
+        return "\n".join(out) + "\n"
 
     @property
     def auto_detect(self) -> str | None:
@@ -290,7 +350,7 @@ class GRESConfig(BaseModel):
                 `GRESNode` and`GRESName` to override the global automatic hardware
                 detection mechanism for specific nodes or resource names.
         """
-        return self.data.get("AutoDetect", None)
+        return self.data.get("AutoDetect")
 
     @auto_detect.setter
     def auto_detect(self, value: str) -> None:
@@ -304,27 +364,27 @@ class GRESConfig(BaseModel):
             pass
 
     @property
-    def names(self) -> list[dict[str, Any]] | None:
-        """List of configured generic resources."""
-        return self.data.get("Names", None)
+    def names(self) -> GRESNameMapping:
+        """Get map of configured generic resources."""
+        return self.data.get("Names")
 
     @names.setter
-    def names(self, value: list[dict[str, Any]]) -> None:
+    def names(self, value: GRESNameMapping) -> None:
         self.data["Names"] = value
 
     @names.deleter
     def names(self) -> None:
-        self.data["Names"] = []
+        self.data["Names"] = GRESNameMapping()
 
     @property
-    def nodes(self) -> dict[str, dict[str, Any]]:
-        """Map of nodes with configured generic resources."""
-        return self.data["Nodes"]
+    def nodes(self) -> GRESNodeMapping:
+        """Get map of node names with configured generic resources."""
+        return self.data.get("Nodes")
 
     @nodes.setter
-    def nodes(self, value: dict[str, GRESNode]) -> None:
+    def nodes(self, value: GRESNodeMapping) -> None:
         self.data["Nodes"] = value
 
     @nodes.deleter
     def nodes(self) -> None:
-        self.data["Nodes"] = {}
+        self.data["Nodes"] = GRESNodeMapping()

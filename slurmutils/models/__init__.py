@@ -18,7 +18,9 @@ from .acctgather import AcctGatherConfig as AcctGatherConfig
 from .cgroup import CgroupConfig as CgroupConfig
 from .gres import GRESConfig as GRESConfig
 from .gres import GRESName as GRESName
+from .gres import GRESNameMapping as GRESNameMapping
 from .gres import GRESNode as GRESNode
+from .gres import GRESNodeMapping as GRESNodeMapping
 from .slurm import DownNodes as DownNodes
 from .slurm import FrontendNode as FrontendNode
 from .slurm import Node as Node
