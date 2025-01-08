@@ -13,6 +13,12 @@ are orchestrating deployments of new and current Slurm clusters. Gone are the da
 seething over incomplete Jinja2 templates. Current utilities shipped in the 
 slurmutils package include:
 
+#### `from slurmutils import ...`
+
+* `calculate_rs`: A function for calculating the ranges and strides of an iterable with
+  unique elements. This function can be used to help convert arrays of node hostnames,
+  device file ids, etc into a Slurm hostname specification.
+
 #### `from slurmutils.editors import ...`
 
 * `acctgatherconfig`: An editor for _acct_gather.conf_ configuration files.
@@ -48,6 +54,40 @@ $ poetry install
 ```
 
 ### Usage
+
+#### `slurmutils`
+
+The top-level provides access to some utilities that streamline common Slurm-related
+operations such as calculating the ranges and strides for a Slurm hostname specification.
+Here's some example operations you can perform with these utilities:
+
+##### `calculate_rs`
+
+###### Calculate a range and/or stride from a list of node hostnames
+
+```python3
+from os.path import commonprefix
+
+from slurmutils import calculate_rs
+
+nodes = ["juju-abc654-1", "juju-abc654-2", "juju-abc654-4"]
+prefix = commonprefix(nodes)
+nums = [int(n.partition(prefix)[2]) for n in nodes]
+slurm_host_spec = prefix + calculate_rs(nums)  # "juju-abc654-[1-2,4]"
+```
+
+###### Calculate a device file range for Nvidia GPUs
+
+```python3
+from pathlib import Path
+
+from slurmutils import calculate_rs
+
+device_files = [file for file in Path("/dev").iterdir() if "nvidia" in file.name]
+prefix = "/dev/nvidia"
+nums = [int(n.partition(prefix)[2]) for n in device_files]
+file_spec = prefix + calculate_rs(nums)  # "/dev/nvidia[0-4]"
+```
 
 #### `slurmutils.editors`
 
