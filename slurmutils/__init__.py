@@ -1,4 +1,4 @@
-# Copyright 2024 Canonical Ltd.
+# Copyright 2024-2025 Canonical Ltd.
 #
 # This program is free software; you can redistribute it and/or
 # modify it under the terms of the GNU Lesser General Public
@@ -13,3 +13,5 @@
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 """Utilities and APIs for interfacing with the Slurm workload manager."""
+
+from .utils import calculate_rs as calculate_rs
