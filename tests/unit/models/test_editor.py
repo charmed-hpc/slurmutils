@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-# Copyright 2024 Canonical Ltd.
+# Copyright 2024-2025 Canonical Ltd.
 #
 # This program is free software; you can redistribute it and/or
 # modify it under the terms of the GNU Lesser General Public
@@ -22,8 +22,8 @@ from pathlib import Path
 from constants import EXAMPLE_SLURM_CONFIG
 from pyfakefs.fake_filesystem_unittest import TestCase
 
-from slurmutils.editors import slurmconfig
-from slurmutils.editors.editor import set_file_permissions
+from slurmutils import slurmconfig
+from slurmutils.core.editor import _set_file_permissions  # noqa
 
 
 class TestBaseEditor(TestCase):
@@ -36,7 +36,7 @@ class TestBaseEditor(TestCase):
     def test_set_file_permissions(self) -> None:
         """Test the `set_file_permissions` function."""
         target = Path("/etc/slurm/slurm.conf")
-        set_file_permissions(target, mode=0o600, user=os.getuid(), group=os.getgid())
+        _set_file_permissions(target, mode=0o600, user=os.getuid(), group=os.getgid())
         f_info = target.stat()
         self.assertEqual("-rw-------", stat.filemode(f_info.st_mode))
         self.assertEqual(os.getuid(), f_info.st_uid)
