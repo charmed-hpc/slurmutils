@@ -1,4 +1,4 @@
-# Copyright 2024 Canonical Ltd.
+# Copyright 2024-2025 Canonical Ltd.
 #
 # This program is free software; you can redistribute it and/or
 # modify it under the terms of the GNU Lesser General Public
@@ -24,10 +24,9 @@ Name=mps Count=200  File=/dev/nvidia0
 Name=mps Count=200  File=/dev/nvidia1
 Name=mps Count=100  File=/dev/nvidia2
 Name=mps Count=100  File=/dev/nvidia3
-Name=bandwidth Type=lustre Count=4G Flags=CountOnly
-
-NodeName=juju-abc654-1 Name=gpu Type=tesla_t4 File=/dev/nvidia[0-1] Count=8G
-NodeName=juju-abc654-1 Name=gpu Type=l40s File=/dev/nvidia[2-3] Count=12G
+Name=bandwidth Type=lustre Count=4G Flags=countonly
+Name=gpu NodeName=juju-abc654-1 Type=tesla_t4 File=/dev/nvidia[0-1] Count=8G
+Name=gpu NodeName=juju-abc654-1 Type=l40s File=/dev/nvidia[2-3] Count=12G
 """
 
 EXAMPLE_SLURM_CONFIG = """#
@@ -56,7 +55,6 @@ SlurmctldPort=7002
 SlurmdPort=7003
 SlurmdSpoolDir=/var/spool/slurmd.spool
 StateSaveLocation=/var/spool/slurm.state
-SwitchType=switch/none
 TmpFS=/tmp
 WaitTime=30
 
@@ -71,12 +69,12 @@ NodeName=juju-c9fc6f-5 NodeAddr=10.152.28.51 CPUs=1 RealMemory=1000 TmpDisk=1000
 #
 # Down node configurations
 #
-DownNodes=juju-c9fc6f-5 State=DOWN Reason="Maintenance Mode"
+DownNodes=juju-c9fc6f-5 State=down Reason="Maintenance Mode"
 
 #
 # Partition configurations
 #
-PartitionName=DEFAULT MaxTime=30 MaxNodes=10 State=UP
+PartitionName=DEFAULT MaxTime=30 MaxNodes=10 State=up
 PartitionName=batch Nodes=juju-c9fc6f-2,juju-c9fc6f-3,juju-c9fc6f-4,juju-c9fc6f-5 MinNodes=4 MaxTime=120 AllowGroups=admin
 """
 
@@ -90,7 +88,7 @@ ArchiveSteps=no
 ArchiveTXN=no
 ArchiveUsage=no
 ArchiveScript=/usr/sbin/slurm.dbd.archive
-AuthInfo=/var/run/munge/munge.socket.2
+AuthInfo=socket=/var/run/munge/munge.socket.2
 AuthType=auth/munge
 AuthAltTypes=auth/jwt
 AuthAltParameters=jwt_key=16549684561684@
@@ -130,14 +128,14 @@ EXAMPLE_ACCT_GATHER_CONFIG = """#
 #
 EnergyIPMIFrequency=1
 EnergyIPMICalcAdjustment=yes
-EnergyIPMIPowerSensors=Node=16,19;Socket1=19,26;KNC=16,19
+EnergyIPMIPowerSensors=node=16,19;socket1=19,26;knc=16,19
 EnergyIPMIUsername=testipmiusername
 EnergyIPMIPassword=testipmipassword
 EnergyIPMITimeout=10
 ProfileHDF5Dir=/mydir
-ProfileHDF5Default=ALL
+ProfileHDF5Default=all
 ProfileInfluxDBDatabase=acct_gather_db
-ProfileInfluxDBDefault=ALL
+ProfileInfluxDBDefault=all
 ProfileInfluxDBHost=testhostname
 ProfileInfluxDBPass=testpassword
 ProfileInfluxDBRTPolicy=testpolicy
