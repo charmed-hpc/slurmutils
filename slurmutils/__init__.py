@@ -14,4 +14,79 @@
 
 """Utilities and APIs for interfacing with the Slurm workload manager."""
 
-from .utils import calculate_rs as calculate_rs
+__all__ = [
+    # From `acctgather.py`
+    "AcctGatherConfig",
+    "AcctGatherConfigEditor",
+    # From `cgroup.py`
+    "CGroupConfig",
+    "CGroupConfigEditor",
+    # From `core/*.py`
+    "Model",
+    "ModelList",
+    "ModelMapping",
+    "Editor",
+    "Callback",
+    # From `exceptions.py`
+    "ModelError",
+    # From `gres.py`
+    "Gres",
+    "GresConfig",
+    "GresConfigEditor",
+    "GresMapping",
+    # From `slurm.py`
+    "DownNodes",
+    "DownNodesList",
+    "FrontendNode",
+    "FrontendNodeMapping",
+    "Node",
+    "NodeMapping",
+    "NodeSet",
+    "NodeSetMapping",
+    "Partition",
+    "PartitionMapping",
+    "SlurmConfig",
+    "SlurmConfigEditor",
+    # From `slurmdbd.py`
+    "SlurmdbdConfig",
+    "SlurmdbdConfigEditor",
+    # From `utils.py`
+    "calculate_rs",
+    # Local
+    "acctgatherconfig",
+    "cgroupconfig",
+    "gresconfig",
+    "slurmconfig",
+    "slurmdbdconfig",
+]
+
+
+from .acctgather import AcctGatherConfig, AcctGatherConfigEditor
+from .cgroup import CGroupConfig, CGroupConfigEditor
+from .core.base import Model, ModelList, ModelMapping
+from .core.callback import Callback
+from .core.editor import Editor
+from .exceptions import ModelError
+from .gres import Gres, GresConfig, GresConfigEditor, GresMapping
+from .slurm import (
+    DownNodes,
+    DownNodesList,
+    FrontendNode,
+    FrontendNodeMapping,
+    Node,
+    NodeMapping,
+    NodeSet,
+    NodeSetMapping,
+    Partition,
+    PartitionMapping,
+    SlurmConfig,
+    SlurmConfigEditor,
+)
+from .slurmdbd import SlurmdbdConfig, SlurmdbdConfigEditor
+from .utils import calculate_rs
+
+acctgatherconfig = AcctGatherConfigEditor()
+cgroupconfig = CGroupConfigEditor()
+gresconfig = GresConfigEditor()
+slurmconfig = SlurmConfigEditor()
+slurmdbdconfig = SlurmdbdConfigEditor()
