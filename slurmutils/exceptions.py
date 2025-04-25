@@ -1,4 +1,4 @@
-# Copyright 2024 Canonical Ltd.
+# Copyright 2024-2025 Canonical Ltd.
 #
 # This program is free software; you can redistribute it and/or
 # modify it under the terms of the GNU Lesser General Public
@@ -22,10 +22,6 @@ class BaseError(Exception):
     def message(self) -> str:
         """Return message passed as argument to exception."""
         return self.args[0]
-
-
-class EditorError(BaseError):
-    """Raise when a Slurm configuration editor encounters an error."""
 
 
 class ModelError(BaseError):
