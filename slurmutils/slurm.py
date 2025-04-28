@@ -588,10 +588,7 @@ class SlurmConfig(Model):
     nodes: Annotated[
         NodeMapping,
         Metadata(
-            origin="nodes",
-            alias="nodename",
-            unique=False,
-            default_factory=lambda: NodeMapping()
+            origin="nodes", alias="nodename", unique=False, default_factory=lambda: NodeMapping()
         ),
     ]
     nodesets: Annotated[
