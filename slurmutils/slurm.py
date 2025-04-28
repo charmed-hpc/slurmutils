@@ -70,10 +70,8 @@ from slurmutils.core.schema import (
 
 
 def _mcs_parameters_parser(value: str) -> dict[str, bool | str]:
-    result: dict[str, bool | list[str]] = {}
-
     params = value.split(":", maxsplit=1)
-    result.update({v: True for v in params[0].split(",")})
+    result: dict[str, bool | list[str]] = dict.fromkeys(params[0].split(","), True)
     try:
         plugin_params = params[1]
         result["mcs_plugin_parameters"] = plugin_params.split("|")
