@@ -33,6 +33,7 @@ __all__ = [
     "Gres",
     "GresConfig",
     "GresConfigEditor",
+    "GresList",
     "GresMapping",
     # From `slurm.py`
     "DownNodes",
@@ -67,7 +68,7 @@ from .core.base import Model, ModelList, ModelMapping
 from .core.callback import Callback
 from .core.editor import Editor
 from .exceptions import ModelError
-from .gres import Gres, GresConfig, GresConfigEditor, GresMapping
+from .gres import Gres, GresConfig, GresConfigEditor, GresList, GresMapping
 from .slurm import (
     DownNodes,
     DownNodesList,
