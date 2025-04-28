@@ -14,7 +14,7 @@
 
 """Models representing the `gres.conf` configuration file."""
 
-__all__ = ["Gres", "GresMapping", "GresConfig", "GresConfigEditor"]
+__all__ = ["Gres", "GresList", "GresMapping", "GresConfig", "GresConfigEditor"]
 
 from typing import Annotated, Any, Callable
 
@@ -88,7 +88,10 @@ class GresConfig(Model):
     """Model representing the `gres.conf` configuration file."""
 
     auto_detect: str | None
-    gres: Annotated[GresMapping, Metadata(origin="gres", alias="name", unique=False)]
+    gres: Annotated[
+        GresMapping,
+        Metadata(origin="gres", alias="name", unique=False, default_factory=lambda: GresMapping()),
+    ]
 
     @classproperty
     def __model_schema__(cls) -> dict[str, Any]:  # noqa N804
