@@ -18,9 +18,6 @@ slurmutils package include:
 * `calculate_rs`: A function for calculating the ranges and strides of an iterable with
   unique elements. This function can be used to help convert arrays of node hostnames,
   device file ids, etc into a Slurm hostname specification.
-
-#### `from slurmutils.editors import ...`
-
 * `acctgatherconfig`: An editor for _acct_gather.conf_ configuration files.
 * `cgroupconfig`: An editor for _cgroup.conf_ configuration files.
 * `gresconfig`: An editor for _gres.conf_ configuration files.
@@ -58,8 +55,9 @@ $ poetry install
 #### `slurmutils`
 
 The top-level provides access to some utilities that streamline common Slurm-related
-operations such as calculating the ranges and strides for a Slurm hostname specification.
-Here's some example operations you can perform with these utilities:
+operations such as calculating the ranges and strides for a Slurm hostname specification
+or editing configuration files in-place. Here's some example operations you can perform 
+with these utilities:
 
 ##### `calculate_rs`
 
@@ -89,26 +87,21 @@ nums = [int(n.partition(prefix)[2]) for n in device_files]
 file_spec = prefix + calculate_rs(nums)  # "/dev/nvidia[0-4]"
 ```
 
-#### `slurmutils.editors`
-
-This module provides an API for editing files, and creating new files if they do not
-exist. Here's some operations you can perform on files using the editors in this module:
-
 ##### `acctgatherconfig`
 
 ###### Edit a pre-existing _acct_gather.conf_ configuration file
 
 ```python
-from slurmutils.editors import acctgatherconfig
+from slurmutils import acctgatherconfig
 
 with acctgatherconfig.edit("/etc/slurm/acct_gather.conf") as config:
-    config.profile_influx_db_database = "test_acct_gather_db"
-    config.profile_influx_db_default = ["NONE"]
-    config.profile_influx_db_host = "testhostname1"
-    config.profile_influx_db_pass = "testpassword1"
-    config.profile_influx_dbrt_policy = "testpolicy1"
-    config.profile_influx_db_user = "testuser1"
-    config.profile_influx_db_timeout = "20"
+    config.profile_influxdb_database = "test_acct_gather_db"
+    config.profile_influxdb_default = ["none"]
+    config.profile_influxdb_host = "testhostname1"
+    config.profile_influxdb_pass = "testpassword1"
+    config.profile_influxdbrt_policy = "testpolicy1"
+    config.profile_influxdb_user = "testuser1"
+    config.profile_influxdb_timeout = 20
 ```
 
 ##### `cgroupconfig`
@@ -116,13 +109,13 @@ with acctgatherconfig.edit("/etc/slurm/acct_gather.conf") as config:
 ###### Edit a pre-existing _cgroup.conf_ configuration file
 
 ```python
-from slurmutils.editors import cgroupconfig
+from slurmutils cgroupconfig
 
 with cgroupconfig.edit("/etc/slurm/cgroup.conf") as config:
-    config.constrain_cores = "yes"
-    config.constrain_devices = "yes"
-    config.constrain_ram_space = "yes"
-    config.constrain_swap_space = "yes"
+    config.constrain_cores = True
+    config.constrain_devices = True
+    config.constrain_ram_space = True
+    config.constrain_swap_space = True
 ```
 
 ##### `gresconfig`
@@ -130,26 +123,24 @@ with cgroupconfig.edit("/etc/slurm/cgroup.conf") as config:
 ###### Edit a pre-existing _gres.conf_ configuration file
 
 ```python
-from slurmutils.editors import gresconfig
-from slurmutils.models import GRESName, GRESNode
+from slurmutils import Gres, GresList, gresconfig
 
 with gresconfig.edit("/etc/slurm/gres.conf") as config:
-    new_gres = GRESName(
-            Name="gpu",
-            Type="epyc",
-            File="/dev/amd4",
-            Cores=["0", "1"],
-        )
-    new_node = GRESNode(
-        NodeName="juju-abc654-[1-20]",
-        Name="gpu",
-        Type="epyc",
-        File="/dev/amd[0-3]",
-        Count="12G",
+    gres1 = Gres(
+          name="gpu",
+          type="epyc",
+          file="/dev/amd4",
+          cores=[0, 1],
+      )
+    gres2 = Gres(
+        name="gpu",
+        nodename="juju-abc654-[1-20]",
+        type="epyc",
+        file="/dev/amd[0-3]",
+        count="12G",
     )
     config.auto_detect = "rsmi"
-    config.names[new_gres.name] = [new_gres]
-    config.nodes[new_node.node_name] = [new_node]
+    config.gres["gpu"] = GresList(gres1, gres2)
 ```
 
 ##### `slurmconfig`
@@ -157,9 +148,8 @@ with gresconfig.edit("/etc/slurm/gres.conf") as config:
 ###### Edit a pre-existing _slurm.conf_ configuration file
 
 ```python
-from slurmutils.editors import slurmconfig
+from slurmutils import slurmconfig
 
-# Open, edit, and save the slurm.conf file located at _/etc/slurm/slurm.conf_.
 with slurmconfig.edit("/etc/slurm/slurm.conf") as config:
     del config.inactive_limit
     config.max_job_count = 20000
@@ -169,18 +159,17 @@ with slurmconfig.edit("/etc/slurm/slurm.conf") as config:
 ###### Add a new node to the _slurm.conf_ file
 
 ```python
-from slurmutils.editors import slurmconfig
-from slurmutils.models import Node
+from slurmutils import Node, slurmconfig
 
 with slurmconfig.edit("/etc/slurm/slurm.conf") as config:
     node = Node(
-        NodeName="batch-[0-25]", 
-        NodeAddr="12.34.56.78", 
-        CPUs=1, 
-        RealMemory=1000, 
-        TmpDisk=10000,
+        nodename="batch-[0-25]", 
+        nodeaddr="12.34.56.78", 
+        cpus=1, 
+        realmemory=1000, 
+        tmpdisk=10000,
     )
-    config.nodes.update(node.dict())
+    config.nodes[node.node_name] = node
 ```
 
 ##### `slurmdbdconfig`
@@ -188,12 +177,12 @@ with slurmconfig.edit("/etc/slurm/slurm.conf") as config:
 ###### Edit a pre-existing _slurmdbd.conf_ configuration file
 
 ```python
-from slurmutils.editors import slurmdbdconfig
+from slurmutils import slurmdbdconfig
 
 with slurmdbdconfig.edit("/etc/slurm/slurmdbd.conf") as config:
-    config.archive_usage = "yes"
+    config.archive_usage = True
     config.log_file = "/var/spool/slurmdbd.log"
-    config.debug_flags = ["DB_EVENT", "DB_JOB", "DB_USAGE"]
+    config.debug_flags = ["db_event", "db_job", "db_usage"]
     del config.auth_alt_types
     del config.auth_alt_parameters
 ```
@@ -204,7 +193,7 @@ If you want to learn more about all the things you can do with slurmutils,
 here are some further resources for you to explore:
 
 * [Open an issue](https://github.com/charmed-hpc/slurmutils/issues/new?title=ISSUE+TITLE&body=*Please+describe+your+issue*)
-* [Ask a question on Github](https://github.com/orgs/charmed-hpc/discussions/categories/q-a)
+* [Ask a question on GitHub](https://github.com/orgs/charmed-hpc/discussions/categories/q-a)
 
 ## 🛠️ Development
 
