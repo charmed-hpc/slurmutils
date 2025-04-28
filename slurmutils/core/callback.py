@@ -126,10 +126,10 @@ def _intbool_marshal(value: bool) -> str:
 
 
 def _make_sep_callback(sep: str) -> Callback:
-    r"""Make callback based on a given seperator character.
+    r"""Make callback based on a given separator character.
 
     Args:
-        sep: Seperator character to generate parser and marshaller with.
+        sep: Separator character to generate parser and marshaller with.
 
     Examples:
         `_make_sep_callback(":")`

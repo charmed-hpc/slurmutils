@@ -96,13 +96,13 @@ class Mode(Enum):
         STANZA: Parse/marshal Slurm configuration from/to a stanza.
 
     Examples:
-        If mode is set to `ONELINE`, parse/marshal using " " as the seperator:
+        If mode is set to `ONELINE`, parse/marshal using " " as the separator:
             parse:
                 "key1=value key2=value" -> {"key1": "value", "key2": "value"}
             marshal:
                  {"key1": "value", "key2": "value"} -> "key1=value key2=value"
 
-        If mode is set to `STANZA`, parse\\marshal using "\n" as the seperator:
+        If mode is set to `STANZA`, parse\\marshal using "\n" as the separator:
             parse:
                 "key1=value\nkey2=value" -> {"key1": "value", "key2": "value"}
             marshal:
@@ -399,7 +399,11 @@ def _make_property(name: str, default_factory: Callable[[], Any] | None = None) 
     """Make new property for a data model field.
 
     Args:
-        name: Name of Slurm configuration option that data model field maps to.
+        name: Name of configuration option that a model field maps to.
+        default_factory:
+            Zero argument callable to invoke when `del` is either called on the model field
+            or the model field is accessed but the configuration option is not present in the
+            model's internal data map.
     """
 
     def getter(self: Model) -> Any | None:
