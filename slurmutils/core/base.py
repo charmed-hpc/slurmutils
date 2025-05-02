@@ -175,12 +175,7 @@ class _ModelBase(metaclass=_ModelMeta):
     """Helper class for providing base methods to models through inheritance."""
 
     def __init__(self, instance: Any, /) -> None:
-        instance = _expand(instance)
-        try:
-            validate(instance, schema=self.__model_schema__)
-        except ValidationError as e:
-            raise ModelError(e.message)
-
+        instance = self.validate(instance)
         if self.__model_builder__:
             self._model_data = self.__model_builder__(instance)
         else:
@@ -213,11 +208,38 @@ class _ModelBase(metaclass=_ModelMeta):
 
     def json(self) -> str:
         """Get model as a json object."""
-        return json.dumps(_expand(self._model_data))
+        return json.dumps(self.validate())
+
+    def validate(self, instance: Iterable[Any] | None = None, /) -> Any:
+        """Validate a model against its defined json schema.
+
+        Args:
+            instance:
+                Optional dictionary object to validate against model json schema.
+                If left set to `None`, this method will validate the attribute `_model_data`
+                against the model json schema instead.
+
+        Raises:
+            ModelError:
+                Raised if `instance` or the `_model_data` attribute fails to validate
+                against the model's json schema.
+
+        Returns:
+            Expanded dictionary or list object. Sub-models must be rebuilt if validated output
+            will be used for marshalling or overwriting the contents of the `_model_data`
+            attribute. Output can be ignored if just performing a validation.
+        """
+        instance = _expand(instance) if instance is not None else _expand(self._model_data)
+        try:
+            validate(instance, schema=self.__model_schema__)
+        except ValidationError as e:
+            raise ModelError(e.message)
+
+        return instance
 
     def __str__(self) -> str:  # noqa D105
+        self.validate()
         return _marshal(self)
-        # return _marshal(self) + "\n"
 
 
 class _MapModel(_ModelBase, ABC):
@@ -233,7 +255,7 @@ class _MapModel(_ModelBase, ABC):
 
     def dict(self) -> dict[str, Any]:
         """Get model as dictionary object."""
-        return _expand(self._model_data)
+        return self.validate()
 
     def update(self, other: Self) -> None:
         """Update model content with content of another model."""
@@ -261,7 +283,7 @@ class ModelList(_ModelBase, ABC, MutableSequence[Model]):
 
     def list(self) -> list[Any]:
         """Get model as list object."""
-        return _expand(self._model_data)
+        return self.validate()
 
     @singledispatchmethod
     def __getitem__(self, index) -> Model:  # noqa D105
@@ -332,7 +354,6 @@ class ModelMapping(_MapModel, ABC, MutableMapping[str, Model]):
         return len(self._model_data)
 
 
-_TParseResult = TypeVar("_TParseResult", bound=dict[str, Any] | list[Any])
 _TModel = TypeVar("_TModel", bound=type[Model] | type[ModelList] | type[ModelMapping])
 
 
@@ -537,7 +558,7 @@ def _format_field(field: str) -> str:
 
 
 @subclassdispatch
-def _expand(obj: Iterable[Any]) -> Any:
+def _expand(obj: Iterable[Any]) -> Iterable[Any]:
     """Recursively expand a complex iterable with nested models.
 
     Args:
@@ -587,7 +608,7 @@ def _(obj: list) -> list[Any]:
 
 
 @subclassdispatch
-def _parse(model_t, s: str) -> _TParseResult:
+def _parse(model_t, s: str) -> Iterable[Any]:
     """Parse data in Slurm configuration format into models.
 
     Args:
