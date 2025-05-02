@@ -224,7 +224,7 @@ class _MapModel(_ModelBase, ABC):
     """Helper class for providing mapping-related methods to models through inheritance."""
 
     def __init__(self, m: Mapping[str, Any] | None = None, /, **kwargs) -> None:
-        super().__init__(m if m else {} | kwargs)
+        super().__init__((m if m else {}) | kwargs)
 
     @classmethod
     def from_dict(cls, m: Mapping[str, Any], /) -> Self:
