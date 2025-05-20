@@ -20,7 +20,7 @@ from typing import Annotated, Any
 
 from slurmutils.core.base import Metadata, Model, classproperty
 from slurmutils.core.callback import StrBoolCallback
-from slurmutils.core.editor import Editor
+from slurmutils.core.editor import BaseEditor
 from slurmutils.core.schema import CGROUP_CONFIG_MODEL_SCHEMA
 
 
@@ -50,7 +50,7 @@ class CGroupConfig(Model):
         return CGROUP_CONFIG_MODEL_SCHEMA
 
 
-class CGroupConfigEditor(Editor):
+class CGroupConfigEditor(BaseEditor):
     """Editor for the `cgroup.conf` configuration file."""
 
     @property

@@ -25,7 +25,7 @@ from slurmutils.core.callback import (
     CommaSepCallback,
     StrBoolCallback,
 )
-from slurmutils.core.editor import Editor
+from slurmutils.core.editor import BaseEditor
 from slurmutils.core.schema import SLURMDBD_CONFIG_MODEL_SCHEMA
 
 
@@ -98,7 +98,7 @@ class SlurmdbdConfig(Model):
         return SLURMDBD_CONFIG_MODEL_SCHEMA
 
 
-class SlurmdbdConfigEditor(Editor):
+class SlurmdbdConfigEditor(BaseEditor):
     """Editor for the `slurmdbd.conf` configuration file."""
 
     @property
