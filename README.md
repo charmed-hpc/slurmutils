@@ -99,7 +99,7 @@ with acctgatherconfig.edit("/etc/slurm/acct_gather.conf") as config:
     config.profile_influxdb_default = ["none"]
     config.profile_influxdb_host = "testhostname1"
     config.profile_influxdb_pass = "testpassword1"
-    config.profile_influxdbrt_policy = "testpolicy1"
+    config.profile_influxdb_rt_policy = "testpolicy1"
     config.profile_influxdb_user = "testuser1"
     config.profile_influxdb_timeout = 20
 ```
@@ -109,7 +109,7 @@ with acctgatherconfig.edit("/etc/slurm/acct_gather.conf") as config:
 ###### Edit a pre-existing _cgroup.conf_ configuration file
 
 ```python
-from slurmutils cgroupconfig
+from slurmutils import cgroupconfig
 
 with cgroupconfig.edit("/etc/slurm/cgroup.conf") as config:
     config.constrain_cores = True
@@ -127,11 +127,11 @@ from slurmutils import Gres, GresList, gresconfig
 
 with gresconfig.edit("/etc/slurm/gres.conf") as config:
     gres1 = Gres(
-          name="gpu",
-          type="epyc",
-          file="/dev/amd4",
-          cores=[0, 1],
-      )
+        name="gpu",
+        type="epyc",
+        file="/dev/amd4",
+        cores=[0, 1],
+    )
     gres2 = Gres(
         name="gpu",
         nodename="juju-abc654-[1-20]",
@@ -163,10 +163,10 @@ from slurmutils import Node, slurmconfig
 
 with slurmconfig.edit("/etc/slurm/slurm.conf") as config:
     node = Node(
-        nodename="batch-[0-25]", 
-        nodeaddr="12.34.56.78", 
-        cpus=1, 
-        realmemory=1000, 
+        nodename="batch-[0-25]",
+        nodeaddr="12.34.56.78",
+        cpus=1,
+        realmemory=1000,
         tmpdisk=10000,
     )
     config.nodes[node.node_name] = node
