@@ -127,3 +127,15 @@ class TestGresConfig(TestCase):
                 name=gpu type=gp100 file=/dev/nvidia0 flags=countonly,custom_gpu_env
                 """
             )
+
+    def test_edit_fail(self) -> None:
+        """Test that bogus attributes are handled when editing a loaded model."""
+        # Catch if user tries to edit a non-existent attribute.
+        with self.assertRaises(AttributeError):
+            config = gresconfig.loads(EXAMPLE_GRES_CONFIG)
+            config.auto = "nvidia"
+
+        # Catch if user tries to access a non-existent attribute.
+        with self.assertRaises(AttributeError):
+            config = gresconfig.loads(EXAMPLE_GRES_CONFIG)
+            _ = config.auto

@@ -153,3 +153,15 @@ class TestAcctGatherConfigEditor(TestCase):
                 EnergyIPMIFrequency=ALL THE TIME!!
                 """
             )
+
+    def test_edit_fail(self) -> None:
+        """Test that bogus attributes are handled when editing a loaded model."""
+        # Catch if user tries to edit a non-existent attribute.
+        with self.assertRaises(AttributeError):
+            config = acctgatherconfig.loads(EXAMPLE_ACCT_GATHER_CONFIG)
+            config.profile_influxdbrt_policy = "newtestpolicy"
+
+        # Catch if user tries to access a non-existent attribute.
+        with self.assertRaises(AttributeError):
+            config = acctgatherconfig.loads(EXAMPLE_ACCT_GATHER_CONFIG)
+            _ = config.profile_influxdbrt_policy
