@@ -25,7 +25,7 @@ __all__ = [
     "Model",
     "ModelList",
     "ModelMapping",
-    "Editor",
+    "BaseEditor",
     "Callback",
     # From `exceptions.py`
     "ModelError",
@@ -66,7 +66,7 @@ from .acctgather import AcctGatherConfig, AcctGatherConfigEditor
 from .cgroup import CGroupConfig, CGroupConfigEditor
 from .core.base import Model, ModelList, ModelMapping
 from .core.callback import Callback
-from .core.editor import Editor
+from .core.editor import BaseEditor
 from .exceptions import ModelError
 from .gres import Gres, GresConfig, GresConfigEditor, GresList, GresMapping
 from .slurm import (

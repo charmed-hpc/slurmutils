@@ -28,7 +28,7 @@ from slurmutils.core.base import (
     make_model_builder,
 )
 from slurmutils.core.callback import CommaSepCallback
-from slurmutils.core.editor import Editor
+from slurmutils.core.editor import BaseEditor
 from slurmutils.core.schema import (
     GRES_CONFIG_MODEL_SCHEMA,
     GRES_LIST_MODEL_SCHEMA,
@@ -102,7 +102,7 @@ class GresConfig(Model):
         return _gres_config_model_builder
 
 
-class GresConfigEditor(Editor):
+class GresConfigEditor(BaseEditor):
     """Editor for the `gres.conf` configuration file."""
 
     @property

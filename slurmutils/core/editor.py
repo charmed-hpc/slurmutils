@@ -46,7 +46,7 @@ def _set_file_permissions(
     shutil.chown(file, user, group)
 
 
-class Editor(ABC):
+class BaseEditor(ABC):
     """Base class for defining Slurm configuration file editors."""
 
     def dump(

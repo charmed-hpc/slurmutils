@@ -53,7 +53,7 @@ from slurmutils.core.callback import (
     StrBoolCallback,
     make_callback,
 )
-from slurmutils.core.editor import Editor
+from slurmutils.core.editor import BaseEditor
 from slurmutils.core.schema import (
     DOWN_NODES_LIST_MODEL_SCHEMA,
     DOWN_NODES_MODEL_SCHEMA,
@@ -617,7 +617,7 @@ class SlurmConfig(Model):
         return _slurm_config_model_builder
 
 
-class SlurmConfigEditor(Editor):
+class SlurmConfigEditor(BaseEditor):
     """Editor for the `slurm.conf` configuration file."""
 
     @property

@@ -24,7 +24,7 @@ from slurmutils.core.callback import (
     SemicolonDictCallback,
     StrBoolCallback,
 )
-from slurmutils.core.editor import Editor
+from slurmutils.core.editor import BaseEditor
 from slurmutils.core.schema import ACCT_GATHER_CONFIG_MODEL_SCHEMA
 
 
@@ -58,7 +58,7 @@ class AcctGatherConfig(Model):
         return ACCT_GATHER_CONFIG_MODEL_SCHEMA
 
 
-class AcctGatherConfigEditor(Editor):
+class AcctGatherConfigEditor(BaseEditor):
     """Editor for the `acct_gather.conf` configuration file."""
 
     @property
