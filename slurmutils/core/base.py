@@ -229,7 +229,11 @@ class _ModelBase(metaclass=_ModelMeta):
             will be used for marshalling or overwriting the contents of the `_model_data`
             attribute. Output can be ignored if just performing a validation.
         """
-        instance = _expand(instance) if instance is not None else _expand(self._model_data)
+        instance = (
+            _get_as_builtin_object(instance)
+            if instance is not None
+            else _get_as_builtin_object(self._model_data)
+        )
         try:
             validate(instance, schema=self.__model_schema__)
         except ValidationError as e:
@@ -567,7 +571,7 @@ def _format_field(field: str) -> str:
 
 
 @subclassdispatch
-def _expand(obj: Iterable[Any]) -> Iterable[Any]:
+def _get_as_builtin_object(obj: Iterable[Any]) -> Iterable[Any]:
     """Recursively expand a complex iterable with nested models.
 
     Args:
@@ -576,44 +580,34 @@ def _expand(obj: Iterable[Any]) -> Iterable[Any]:
     raise TypeError(f"expected list or Mapping, not {type(obj)}")
 
 
-@_expand.register
+@_get_as_builtin_object.register
 def _(obj: Mapping) -> dict[str, Any]:
-    result: dict[str, Any] = {}
-
-    for k, v in obj.items():
-        match v:
-            case Model():
-                expanded = _expand(v.dict())
-            case ModelList():
-                expanded = _expand(v.list())
-            case Mapping() | list():
-                expanded = _expand(v)
-            case _:
-                expanded = v
-
-        result[k] = expanded
-
-    return result
+    return {k: _expand_by_type(v) for k, v in obj.items()}
 
 
-@_expand.register
+@_get_as_builtin_object.register
 def _(obj: list) -> list[Any]:
-    result: list[Any] = []
+    return [_expand_by_type(v) for v in obj]
 
-    for v in obj:
-        match v:
-            case Model():
-                expanded = _expand(v.dict())
-            case ModelList():
-                expanded = _expand(v.list())
-            case Mapping() | list():
-                expanded = _expand(v)
-            case _:
-                expanded = v
 
-        result.append(expanded)
+def _expand_by_type(v: Any) -> Any:
+    """Expand an object based on its type.
 
-    return result
+    Args:
+        v: Object to expand based on its type.
+
+    Returns:
+        An "expanded" builtin object with no nested custom objects.
+    """
+    match v:
+        case Model():
+            return _get_as_builtin_object(v.dict())
+        case ModelList():
+            return _get_as_builtin_object(v.list())
+        case Mapping() | list():
+            return _get_as_builtin_object(v)
+        case _:
+            return v
 
 
 @subclassdispatch
