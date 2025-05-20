@@ -66,7 +66,7 @@ class TestCgroupConfig(TestCase):
         self.assertFalse(config.constrain_ram_space)
         self.assertFalse(config.constrain_swap_space)
 
-    def test_load_failure(self) -> None:
+    def test_load_fail(self) -> None:
         """Test that bogus values are automatically caught when loading a new model."""
         # Catch if field value is unexpected. e.g. not a boolean value.
         with self.assertRaises(ValueError):
@@ -91,3 +91,15 @@ class TestCgroupConfig(TestCase):
                 cgroupplugin=yeahtotallyusecgroup
                 """
             )
+
+    def test_edit_fail(self) -> None:
+        """Test that bogus attributes are handled when editing a loaded model."""
+        # Catch if user tries to edit a non-existent attribute.
+        with self.assertRaises(AttributeError):
+            config = cgroupconfig.loads(CGroupConfig)
+            config.constrain_ram = False
+
+        # Catch if user tries to access a non-existent attribute.
+        with self.assertRaises(AttributeError):
+            config = cgroupconfig.loads(CGroupConfig)
+            _ = config.constrain_ram

@@ -119,3 +119,15 @@ class TestSlurmdbdConfigEditor(TestCase):
                 LogFile=67
                 """
             )
+
+    def test_edit_fail(self) -> None:
+        """Test that bogus attributes are handled when editing a loaded model."""
+        # Catch if user tries to edit a non-existent attribute.
+        with self.assertRaises(AttributeError):
+            config = slurmdbdconfig.loads(EXAMPLE_SLURMDBD_CONFIG)
+            config.archive = True
+
+        # Catch if user tries to access a non-existent attribute.
+        with self.assertRaises(AttributeError):
+            config = slurmdbdconfig.loads(EXAMPLE_SLURMDBD_CONFIG)
+            _ = config.archive
