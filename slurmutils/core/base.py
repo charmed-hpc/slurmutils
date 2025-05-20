@@ -175,11 +175,11 @@ class _ModelBase(metaclass=_ModelMeta):
     """Helper class for providing base methods to models through inheritance."""
 
     def __init__(self, instance: Any, /) -> None:
-        instance = self.validate(instance)
+        instance = self.validate_model(instance)
         if self.__model_builder__:
-            self._model_data = self.__model_builder__(instance)
+            object.__setattr__(self, "_model_data", self.__model_builder__(instance))
         else:
-            self._model_data = instance
+            object.__setattr__(self, "_model_data", instance)
 
     @classproperty
     @abstractmethod
@@ -208,9 +208,9 @@ class _ModelBase(metaclass=_ModelMeta):
 
     def json(self) -> str:
         """Get model as a json object."""
-        return json.dumps(self.validate())
+        return json.dumps(self.validate_model())
 
-    def validate(self, instance: Iterable[Any] | None = None, /) -> Any:
+    def validate_model(self, instance: Iterable[Any] | None = None, /) -> Any:
         """Validate a model against its defined json schema.
 
         Args:
@@ -237,8 +237,17 @@ class _ModelBase(metaclass=_ModelMeta):
 
         return instance
 
+    def __getattr__(self, item: str) -> Any:  # noqa D105
+        raise AttributeError(f"'{self.__class__.__name__}' object has no attribute '{item}'")
+
+    def __setattr__(self, key: str, value: Any) -> Any:  # noqa D105
+        if not hasattr(self, key):
+            raise AttributeError(f"'{self.__class__.__name__}' object has no attribute '{key}'")
+
+        super().__setattr__(key, value)
+
     def __str__(self) -> str:  # noqa D105
-        self.validate()
+        self.validate_model()
         return _marshal(self)
 
 
@@ -255,7 +264,7 @@ class _MapModel(_ModelBase, ABC):
 
     def dict(self) -> dict[str, Any]:
         """Get model as dictionary object."""
-        return self.validate()
+        return self.validate_model()
 
     def update(self, other: Self) -> None:
         """Update model content with content of another model."""
@@ -283,7 +292,7 @@ class ModelList(_ModelBase, ABC, MutableSequence[Model]):
 
     def list(self) -> list[Any]:
         """Get model as list object."""
-        return self.validate()
+        return self.validate_model()
 
     @singledispatchmethod
     def __getitem__(self, index) -> Model:  # noqa D105
