@@ -29,7 +29,7 @@ constrainswapspace=yes
 """.strip()
 
 
-class TestCgroupConfig(TestCase):
+class TestCGroupConfig(TestCase):
     """Unit tests for model and editor of the `cgroup.conf` configuration file."""
 
     def setUp(self) -> None:
