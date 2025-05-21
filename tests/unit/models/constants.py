@@ -29,6 +29,17 @@ Name=gpu NodeName=juju-abc654-1 Type=tesla_t4 File=/dev/nvidia[0-1] Count=8G
 Name=gpu NodeName=juju-abc654-1 Type=l40s File=/dev/nvidia[2-3] Count=12G
 """
 
+EXAMPLE_OCI_CONFIG = """#
+# `oci.conf` file generated at 2024-09-18 19:05:45.723019 by slurmutils.
+#
+IgnoreFileConfigJson=true
+EnvExclude="^(SLURM_CONF|SLURM_CONF_SERVER)="
+RunTimeEnvExclude="^(SLURM_CONF|SLURM_CONF_SERVER)="
+RunTimeRun="singularity exec --userns %r %@"
+RunTimeKill="kill -s SIGTERM %p"
+RunTimeDelete="kill -s SIGKILL %p"
+"""
+
 EXAMPLE_SLURM_CONFIG = """#
 # `slurm.conf` file generated at 2024-01-30 17:18:36.171652 by slurmutils.
 #

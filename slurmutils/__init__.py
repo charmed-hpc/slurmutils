@@ -35,6 +35,9 @@ __all__ = [
     "GresConfigEditor",
     "GresList",
     "GresMapping",
+    # From `oci.py`
+    "OCIConfig",
+    "OCIConfigEditor",
     # From `slurm.py`
     "DownNodes",
     "DownNodesList",
@@ -69,6 +72,7 @@ from .core.callback import Callback
 from .core.editor import BaseEditor
 from .exceptions import ModelError
 from .gres import Gres, GresConfig, GresConfigEditor, GresList, GresMapping
+from .oci import OCIConfig, OCIConfigEditor
 from .slurm import (
     DownNodes,
     DownNodesList,
@@ -89,5 +93,6 @@ from .utils import calculate_rs
 acctgatherconfig = AcctGatherConfigEditor()
 cgroupconfig = CGroupConfigEditor()
 gresconfig = GresConfigEditor()
+ociconfig = OCIConfigEditor()
 slurmconfig = SlurmConfigEditor()
 slurmdbdconfig = SlurmdbdConfigEditor()
