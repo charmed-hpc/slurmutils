@@ -21,6 +21,7 @@ slurmutils package include:
 * `acctgatherconfig`: An editor for _acct_gather.conf_ configuration files.
 * `cgroupconfig`: An editor for _cgroup.conf_ configuration files.
 * `gresconfig`: An editor for _gres.conf_ configuration files.
+* `ociconfig`: An editor for _oci.conf_ configuration files.
 * `slurmconfig`: An editor for _slurm.conf_ configuration files.
 * `slurmdbdconfig`: An editor for _slurmdbd.conf_ configuration files.
 
@@ -141,6 +142,21 @@ with gresconfig.edit("/etc/slurm/gres.conf") as config:
     )
     config.auto_detect = "rsmi"
     config.gres["gpu"] = GresList(gres1, gres2)
+```
+
+##### `ociconfig`
+
+###### Edit a pre-existing _oci.conf_ configuration file
+
+```python
+from slurmutils import ociconfig
+
+with ociconfig.edit("/etc/slurm/oci.conf") as config:
+    config.ignore_file_config_json = False
+    config.env_exclude = "^(SLURM_CONF|SLURM_CONF_SERVER|SLURM_JWT)="
+    config.create_env_file = "newline"
+    config.std_io_debug = "debug"
+    config.syslog_debug = "debug"
 ```
 
 ##### `slurmconfig`
