@@ -18,6 +18,7 @@ __all__ = [
     "Callback",
     "DefaultCallback",
     "MultilineCallback",
+    "BoolCallback",
     "StrBoolCallback",
     "IntBoolCallback",
     "QuoteCallback",
@@ -95,6 +96,20 @@ def _autocast(value: str) -> Any:
         return ast.literal_eval(value)
     except (ValueError, SyntaxError):
         return value
+
+
+def _bool_parse(value: str) -> bool:
+    match value.lower():
+        case "true":
+            return True
+        case "false":
+            return False
+        case _:
+            raise ValueError(f"expected true or false, not {value}")
+
+
+def _bool_marshal(value: bool) -> str:
+    return "true" if value else "false"
 
 
 def _strbool_parse(value: str) -> bool:
@@ -200,6 +215,7 @@ def _make_dict_callback(sep: str, pair_sep: str = "=", array_sep: str | None = N
 DefaultCallback = make_callback(_autocast, lambda v: str(v))
 QuoteCallback = make_callback(_autocast, lambda v: f'"{v}"')
 MultilineCallback = make_callback(_autocast, lambda v: "\n".join(v))
+BoolCallback = make_callback(_bool_parse, _bool_marshal)
 StrBoolCallback = make_callback(_strbool_parse, _strbool_marshal)
 IntBoolCallback = make_callback(_intbool_parse, _intbool_marshal)
 CommaDictCallback = _make_dict_callback(",", "=", ",")
