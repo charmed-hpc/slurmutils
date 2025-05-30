@@ -198,8 +198,11 @@ def _make_dict_callback(sep: str, pair_sep: str = "=", array_sep: str | None = N
         result: list[str] = []
 
         for k, v in value.items():
-            if isinstance(v, bool) and v:
-                result.append(k)
+            if isinstance(v, bool):
+                # If `v` is `False`, omit `k` from final marshaled output.
+                if v:
+                    result.append(k)
+
                 continue
 
             if array_sep is not None and isinstance(v, Iterable) and not isinstance(v, str):
