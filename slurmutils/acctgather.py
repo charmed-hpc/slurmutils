@@ -18,14 +18,10 @@ __all__ = ["AcctGatherConfig", "AcctGatherConfigEditor"]
 
 from typing import Annotated, Any
 
-from slurmutils.core.base import Metadata, Model, classproperty
-from slurmutils.core.callback import (
-    CommaSepCallback,
-    SemicolonDictCallback,
-    StrBoolCallback,
-)
-from slurmutils.core.editor import BaseEditor
-from slurmutils.core.schema import ACCT_GATHER_CONFIG_MODEL_SCHEMA
+from .core.base import Metadata, Model, classproperty
+from .core.callback import CommaSepCallback, SemicolonDictCallback, StrBoolCallback
+from .core.editor import BaseEditor
+from .core.schema import ACCT_GATHER_CONFIG_MODEL_SCHEMA
 
 
 class AcctGatherConfig(Model):

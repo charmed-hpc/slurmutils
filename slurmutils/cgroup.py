@@ -18,10 +18,10 @@ __all__ = ["CGroupConfig", "CGroupConfigEditor"]
 
 from typing import Annotated, Any
 
-from slurmutils.core.base import Metadata, Model, classproperty
-from slurmutils.core.callback import StrBoolCallback
-from slurmutils.core.editor import BaseEditor
-from slurmutils.core.schema import CGROUP_CONFIG_MODEL_SCHEMA
+from .core.base import Metadata, Model, classproperty
+from .core.callback import StrBoolCallback
+from .core.editor import BaseEditor
+from .core.schema import CGROUP_CONFIG_MODEL_SCHEMA
 
 
 class CGroupConfig(Model):

@@ -30,9 +30,9 @@ __all__ = [
 ]
 
 from collections.abc import Callable, Iterable
-from typing import Annotated, Any
+from typing import Annotated, Any, cast
 
-from slurmutils.core.base import (
+from .core.base import (
     Metadata,
     Mode,
     Model,
@@ -41,7 +41,7 @@ from slurmutils.core.base import (
     classproperty,
     make_model_builder,
 )
-from slurmutils.core.callback import (
+from .core.callback import (
     ColonSepCallback,
     CommaDictCallback,
     CommaDictColonArrayCallback,
@@ -53,8 +53,8 @@ from slurmutils.core.callback import (
     StrBoolCallback,
     make_callback,
 )
-from slurmutils.core.editor import BaseEditor
-from slurmutils.core.schema import (
+from .core.editor import BaseEditor
+from .core.schema import (
     DOWN_NODES_LIST_MODEL_SCHEMA,
     DOWN_NODES_MODEL_SCHEMA,
     FRONTEND_NODE_MAPPING_MODEL_SCHEMA,
@@ -69,7 +69,7 @@ from slurmutils.core.schema import (
 )
 
 
-def _mcs_parameters_parser(value: str) -> dict[str, bool | str]:
+def _mcs_parameters_parser(value: str) -> dict[str, bool | list[str]]:
     params = value.split(":", maxsplit=1)
     result: dict[str, bool | list[str]] = dict.fromkeys(params[0].split(","), True)
     try:
@@ -82,7 +82,7 @@ def _mcs_parameters_parser(value: str) -> dict[str, bool | str]:
 
 
 def _mcs_parameters_marshaller(value: dict[str, bool | Iterable[str]]) -> str:
-    plugin_params = "|".join(value.pop("mcs_plugin_parameters", []))
+    plugin_params = "|".join(cast(Iterable[str], value.pop("mcs_plugin_parameters", [])))
     params = ",".join(k for k in value if value[k])
     if plugin_params:
         params += f":{plugin_params}"
@@ -241,7 +241,7 @@ class Partition(Model):
 
 
 class DownNodesList(ModelList[DownNodes]):
-    """List of down nodes in the ``."""
+    """List of down nodes entries in the `slurm.conf` configuration file."""
 
     @classproperty
     def __model_schema__(cls) -> dict[str, Any]:  # noqa N805
@@ -352,7 +352,7 @@ class SlurmConfig(Model):
     def_mem_per_gpu: int | None
     def_mem_per_node: int | None
     dependency_parameters: Annotated[
-        dict[str, bool, int] | None,
+        dict[str, bool | int] | None,
         Metadata(callback=CommaDictCallback),
     ]
     disable_root_jobs: bool | None
@@ -539,7 +539,7 @@ class SlurmConfig(Model):
     srun_prolog: str | None
     state_save_location: str | None
     suspend_exc_nodes: Annotated[
-        dict[str, bool, int] | None,
+        dict[str, bool | int] | None,
         Metadata(callback=CommaDictColonPairCallback),
     ]
     suspend_exc_parts: Annotated[list[str] | None, Metadata(callback=CommaSepCallback)]
@@ -557,7 +557,7 @@ class SlurmConfig(Model):
     task_plugin: Annotated[list[str] | None, Metadata(callback=CommaSepCallback)]
     task_plugin_param: Annotated[
         dict[str, bool | str] | None,
-        Metadata(CommaDictCallback),
+        Metadata(callback=CommaDictCallback),
     ]
     task_prolog: str | None
     tcp_timeout: int | None

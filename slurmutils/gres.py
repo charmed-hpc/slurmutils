@@ -18,7 +18,7 @@ __all__ = ["Gres", "GresList", "GresMapping", "GresConfig", "GresConfigEditor"]
 
 from typing import Annotated, Any, Callable
 
-from slurmutils.core.base import (
+from .core.base import (
     Metadata,
     Mode,
     Model,
@@ -27,9 +27,9 @@ from slurmutils.core.base import (
     classproperty,
     make_model_builder,
 )
-from slurmutils.core.callback import CommaSepCallback
-from slurmutils.core.editor import BaseEditor
-from slurmutils.core.schema import (
+from .core.callback import CommaSepCallback
+from .core.editor import BaseEditor
+from .core.schema import (
     GRES_CONFIG_MODEL_SCHEMA,
     GRES_LIST_MODEL_SCHEMA,
     GRES_MAPPING_MODEL_SCHEMA,

@@ -18,15 +18,15 @@ __all__ = ["OCIConfig", "OCIConfigEditor"]
 
 from typing import Annotated, Any
 
-from slurmutils.core.base import Metadata, Model, classproperty
-from slurmutils.core.callback import (
+from .core.base import Metadata, Model, classproperty
+from .core.callback import (
     BoolCallback,
     CommaSepCallback,
     MultilineCallback,
     QuoteCallback,
 )
-from slurmutils.core.editor import BaseEditor
-from slurmutils.core.schema import OCI_CONFIG_MODEL_SCHEMA
+from .core.editor import BaseEditor
+from .core.schema import OCI_CONFIG_MODEL_SCHEMA
 
 
 class OCIConfig(Model):

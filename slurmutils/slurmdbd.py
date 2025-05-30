@@ -18,15 +18,15 @@ __all__ = ["SlurmdbdConfig", "SlurmdbdConfigEditor"]
 
 from typing import Annotated, Any
 
-from slurmutils.core.base import Metadata, Model, classproperty
-from slurmutils.core.callback import (
+from .core.base import Metadata, Model, classproperty
+from .core.callback import (
     ColonSepCallback,
     CommaDictCallback,
     CommaSepCallback,
     StrBoolCallback,
 )
-from slurmutils.core.editor import BaseEditor
-from slurmutils.core.schema import SLURMDBD_CONFIG_MODEL_SCHEMA
+from .core.editor import BaseEditor
+from .core.schema import SLURMDBD_CONFIG_MODEL_SCHEMA
 
 
 class SlurmdbdConfig(Model):
