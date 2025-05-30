@@ -14,6 +14,11 @@
 
 """Base classes and functions for composing Slurm data models."""
 
+# pyright: reportIncompatibleMethodOverride=false
+#   This override is required because `pyright` dislikes in `ModelMapping` how
+#   `_MapModel` and `MutableSequence` have conflicting signatures for the
+#   `update` method. Potentially a candidate for a later refactor.
+
 __all__ = [
     "classproperty",
     "Metadata",
@@ -27,20 +32,37 @@ __all__ = [
 import json
 from abc import ABC, ABCMeta, abstractmethod
 from collections import Counter, deque
-from collections.abc import Callable, Iterable, Mapping, MutableMapping, MutableSequence, Sequence
+from collections.abc import (
+    Callable,
+    Iterable,
+    Iterator,
+    Mapping,
+    MutableMapping,
+    MutableSequence,
+    Sequence,
+)
 from dataclasses import dataclass
 from enum import Enum, auto
 from functools import singledispatchmethod
 from inspect import isclass
 from itertools import filterfalse, takewhile
 from types import MethodType, NoneType, UnionType, get_original_bases
-from typing import Annotated, Any, TypeVar, cast, get_args, get_origin, get_type_hints
+from typing import (
+    Annotated,
+    Any,
+    Generic,
+    TypeVar,
+    cast,
+    get_args,
+    get_origin,
+    get_type_hints,
+)
 
 from jsonschema import ValidationError, validate
 from typing_extensions import Self
 
-from slurmutils.core.callback import Callback, DefaultCallback
-from slurmutils.exceptions import ModelError
+from ..exceptions import ModelError
+from .callback import Callback, DefaultCallback
 
 
 class classproperty(property):  # noqa N801
@@ -81,7 +103,7 @@ class subclassdispatch:  # noqa N801
     def __call__(self, *args, **kwargs) -> Any:
         return self.dispatch(args[0])(*args, **kwargs)
 
-    def __get__(self, instance, owner) -> Self:
+    def __get__(self, instance, owner) -> Self | MethodType:
         if instance is not None:
             return MethodType(self, instance)
         else:
@@ -160,7 +182,7 @@ class _ModelMeta(ABCMeta):
         namespace: dict[str, Any],
         /,
         **kwargs: dict[str, Any],
-    ) -> Self:
+    ) -> "_ModelMeta":
         field: str
 
         if "__annotations__" in namespace:
@@ -258,11 +280,11 @@ class _ModelBase(metaclass=_ModelMeta):
 class _MapModel(_ModelBase, ABC):
     """Helper class for providing mapping-related methods to models through inheritance."""
 
-    def __init__(self, m: Mapping[str, Any] | None = None, /, **kwargs) -> None:
+    def __init__(self, m: dict[str, Any] | None = None, /, **kwargs) -> None:
         super().__init__((m if m else {}) | kwargs)
 
     @classmethod
-    def from_dict(cls, m: Mapping[str, Any], /) -> Self:
+    def from_dict(cls, m: dict[str, Any], /) -> Self:
         """Create model from dictionary object."""
         return cls(m)
 
@@ -275,20 +297,26 @@ class _MapModel(_ModelBase, ABC):
         self._model_data.update(other._model_data)
 
 
+_KT = TypeVar("_KT", bound=str)
+_TModelBase = TypeVar("_TModelBase", bound=_ModelBase)
+
+
 class Model(_MapModel, ABC):
     """Base class for build configuration models."""
 
 
-class ModelList(_ModelBase, ABC, MutableSequence[Model]):
+class ModelList(_ModelBase, ABC, MutableSequence[Model], Generic[_TModelBase]):
     """Base class for lists containing models."""
 
-    def __init__(self, *args: Model | Iterable[Model]) -> None:
-        super().__init__(list(_flatten_model_list(args)))
+    def __init__(self, i: Model | Iterable[Model] | None = None, /, *models: Model) -> None:
+        super().__init__(
+            [i] + list(models) if isinstance(i, Model) else list(i or []) + list(models)
+        )
 
     @classmethod
-    def from_list(cls, li: Sequence[Any], /) -> Self:
+    def from_list(cls, i: Sequence[Any], /) -> Self:
         """Create model from list object."""
-        return cls(li)
+        return cls(i)
 
     def insert(self, index: int, value: Model) -> None:
         """Insert model before index."""
@@ -299,9 +327,8 @@ class ModelList(_ModelBase, ABC, MutableSequence[Model]):
         return self.validate_model()
 
     @singledispatchmethod
-    def __getitem__(self, index) -> Model:  # noqa D105
-        if not isinstance(index, int | slice):
-            raise TypeError(f"list indices must be integers or slices, not {type(index)}")
+    def __getitem__(self, index) -> Model | Self:  # noqa D105
+        raise TypeError(f"list indices must be integers or slices, not {type(index)}")
 
     @__getitem__.register
     def _(self, index: int) -> Model:
@@ -309,7 +336,7 @@ class ModelList(_ModelBase, ABC, MutableSequence[Model]):
 
     @__getitem__.register
     def _(self, index: slice) -> Self:
-        return self.__init__(self._model_data[index])
+        return self.__class__(self._model_data[index])
 
     def __setitem__(self, index: int | slice, value: Model | Iterable[Model]) -> None:  # noqa D105
         self._model_data[index] = value
@@ -336,19 +363,7 @@ def _sort_model_list(model_list: ModelList) -> dict[str, ModelList]:
     return result
 
 
-def _flatten_model_list(model_list: Iterable[Model]) -> Iterable[Model]:
-    """Flatten a list of models to one level.
-
-    [Model, Model, [Model, Model]] -> [Model, Model, Model, Model]
-    """
-    for model in model_list:
-        if isinstance(model, list | tuple | ModelList):
-            yield from _flatten_model_list(model)
-        else:
-            yield model
-
-
-class ModelMapping(_MapModel, ABC, MutableMapping[str, Model]):
+class ModelMapping(_MapModel, ABC, MutableMapping[str, Model], Generic[_KT, _TModelBase]):
     """Base class for mappings containing models."""
 
     def __getitem__(self, key: str, /) -> Any:  # noqa D105
@@ -360,17 +375,16 @@ class ModelMapping(_MapModel, ABC, MutableMapping[str, Model]):
     def __delitem__(self, key: str, /) -> None:  # noqa D105
         del self._model_data[key]
 
-    def __iter__(self) -> Iterable[str]:  # noqa D105
+    def __iter__(self) -> Iterator[str]:  # noqa D105
         return iter(self._model_data)
 
     def __len__(self) -> int:  # noqa D105
         return len(self._model_data)
 
 
-_TModel = TypeVar("_TModel", bound=type[Model] | type[ModelList] | type[ModelMapping])
-
-
-def make_model_builder(*models: _TModel) -> Callable[[Any], Any]:
+def make_model_builder(
+    *models: type[Model] | type[ModelList] | type[ModelMapping],
+) -> Callable[[Any], Any]:
     """Make a custom model builder from a provided list of models.
 
     Args:
@@ -380,7 +394,7 @@ def make_model_builder(*models: _TModel) -> Callable[[Any], Any]:
         Callable for building a model from a base Python object.
     """
 
-    def match(obj: Any) -> _TModel | None:
+    def match(obj: Any) -> Model | ModelList | ModelMapping | None:
         for model in models:
             try:
                 validate(obj, schema=model.__model_schema__)
@@ -555,7 +569,7 @@ def _glom_primary_key(model_list: ModelList) -> str:
             )
         )
 
-    return list(primary_keys)[0]
+    return cast(str, list(primary_keys)[0])
 
 
 def _format_field(field: str) -> str:
