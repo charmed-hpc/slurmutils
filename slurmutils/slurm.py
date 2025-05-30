@@ -339,7 +339,9 @@ class SlurmConfig(Model):
     burst_buffer_type: str | None
     cli_filter_plugins: Annotated[list[str] | None, Metadata(callback=CommaSepCallback)]
     cluster_name: str | None
-    communication_parameters: Annotated[dict[str, bool | int] | None, Metadata()]
+    communication_parameters: Annotated[
+        dict[str, bool | int] | None, Metadata(callback=CommaDictCallback)
+    ]
     complete_wait: int | None
     cpu_freq_def: str | None
     cpu_freq_governors: Annotated[list[str] | None, Metadata(callback=CommaSepCallback)]
