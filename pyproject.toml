@@ -1,4 +1,4 @@
-# Copyright 2024 Canonical Ltd.
+# Copyright 2024-2025 Canonical Ltd.
 #
 # This program is free software; you can redistribute it and/or
 # modify it under the terms of the GNU Lesser General Public
@@ -91,3 +91,6 @@ extend-ignore = [
 ignore = ["E501", "D107"]
 per-file-ignores = {"tests/*" = ["D100","D101","D102","D103","D104"]}
 mccabe = { "max-complexity" = 15 }
+
+[tool.pyright]
+include = ["slurmutils/*"]
