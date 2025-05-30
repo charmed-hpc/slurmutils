@@ -16,12 +16,78 @@
 
 import os
 import shutil
-from abc import ABC, abstractmethod
-from collections.abc import Generator
+from collections.abc import Iterator
 from contextlib import contextmanager
 from pathlib import Path
+from typing import Protocol, TypeVar
 
 from .base import Model
+
+_TModel = TypeVar("_TModel", bound=Model)
+
+
+class BaseEditor(Protocol[_TModel]):
+    """Base protocol for defining Slurm configuration file editors."""
+
+    @property
+    def __model__(self) -> type[_TModel]: ...  # noqa D105
+
+    def dump(
+        self,
+        obj: _TModel,
+        /,
+        file: str | os.PathLike,
+        *,
+        mode: int = 0o644,
+        user: str | int | None = None,
+        group: str | int | None = None,
+    ) -> None:
+        """Marshal a configuration model into a file."""
+        Path(file).write_text(self.dumps(obj) + "\n")
+        _set_file_permissions(file, mode=mode, user=user, group=group)
+
+    def dumps(self, obj: _TModel, /) -> str:
+        """Marshal a configuration model into a `str`."""
+        return str(obj)
+
+    def load(self, file: str | os.PathLike, /) -> _TModel:
+        """Parse the contents of a file into a configuration model.
+
+        Raises:
+            FileNotFoundError: Raised if `file` does not exist.
+        """
+        return self.loads(Path(file).read_text())
+
+    def loads(self, s: str, /) -> _TModel:
+        """Parse a `str` into a configuration model."""
+        return self.__model__.from_str(s)
+
+    @contextmanager
+    def edit(
+        self,
+        file: str | os.PathLike,
+        *,
+        mode: int = 0o644,
+        user: int | str | None = None,
+        group: int | str | None = None,
+    ) -> Iterator[_TModel]:
+        """Edit a configuration file.
+
+        Args:
+            file:
+                Configuration file to edit.
+                An empty model will be created if the file does not exist.
+            mode: Access mode to set on the configuration file. (Default: rw-r--r--)
+            user: User to set as owner of the configuration file. (Default: $USER)
+            group: Group to set as owner of the configuration file. (Default: None)
+        """
+        if not os.path.exists(file):
+            model = self.__model__()
+        else:
+            model = self.load(file)
+
+        yield model
+        self.dump(model, file, mode=mode, user=user, group=group)
 
 
 def _set_file_permissions(
@@ -44,69 +110,3 @@ def _set_file_permissions(
         user = os.getuid()
 
     shutil.chown(file, user, group)
-
-
-class BaseEditor(ABC):
-    """Base class for defining Slurm configuration file editors."""
-
-    def dump(
-        self,
-        obj: Model,
-        /,
-        file: str | os.PathLike,
-        *,
-        mode: int = 0o644,
-        user: str | int | None = None,
-        group: str | int | None = None,
-    ) -> None:
-        """Marshal a configuration model into a file."""
-        Path(file).write_text(self.dumps(obj) + "\n")
-        _set_file_permissions(file, mode=mode, user=user, group=group)
-
-    def dumps(self, obj: Model, /) -> str:
-        """Marshal a configuration model into a `str`."""
-        return str(obj)
-
-    def load(self, file: str | os.PathLike, /) -> Model:
-        """Parse the contents of a file into a configuration model.
-
-        Raises:
-            FileNotFoundError: Raised if `file` does not exist.
-        """
-        return self.loads(Path(file).read_text())
-
-    def loads(self, s: str, /) -> Model:
-        """Parse a `str` into a configuration model."""
-        return self.__model__.from_str(s)
-
-    @contextmanager
-    def edit(
-        self,
-        file: str | os.PathLike,
-        *,
-        mode: int = 0o644,
-        user: int | str | None = None,
-        group: int | str | None = None,
-    ) -> Generator[Model, None, None]:
-        """Edit a configuration file.
-
-        Args:
-            file:
-                Configuration file to edit.
-                An empty model will be created if the file does not exist.
-            mode: Access mode to set on the configuration file. (Default: rw-r--r--)
-            user: User to set as owner of the configuration file. (Default: $USER)
-            group: Group to set as owner of the configuration file. (Default: None)
-        """
-        if not os.path.exists(file):
-            model = self.__model__()
-        else:
-            model = self.load(file)
-
-        yield model
-        self.dump(model, file, mode=mode, user=user, group=group)
-
-    @property
-    @abstractmethod
-    def __model__(self) -> type[Model]:
-        """Model used by editor for interfacing with configuration files."""
