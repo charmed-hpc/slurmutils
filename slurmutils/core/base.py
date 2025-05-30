@@ -50,7 +50,6 @@ from types import MethodType, NoneType, UnionType, get_original_bases
 from typing import (
     Annotated,
     Any,
-    Generic,
     TypeVar,
     cast,
     get_args,
@@ -277,6 +276,10 @@ class _ModelBase(metaclass=_ModelMeta):
         return _marshal(self)
 
 
+_TModelBase = TypeVar("_TModelBase", bound=_ModelBase)
+_KT = TypeVar("_KT", bound=str)
+
+
 class _MapModel(_ModelBase, ABC):
     """Helper class for providing mapping-related methods to models through inheritance."""
 
@@ -297,15 +300,11 @@ class _MapModel(_ModelBase, ABC):
         self._model_data.update(other._model_data)
 
 
-_KT = TypeVar("_KT", bound=str)
-_TModelBase = TypeVar("_TModelBase", bound=_ModelBase)
-
-
 class Model(_MapModel, ABC):
     """Base class for build configuration models."""
 
 
-class ModelList(_ModelBase, ABC, MutableSequence[Model], Generic[_TModelBase]):
+class ModelList(_ModelBase, ABC, MutableSequence[_TModelBase]):
     """Base class for lists containing models."""
 
     def __init__(self, i: Model | Iterable[Model] | None = None, /, *models: Model) -> None:
@@ -363,7 +362,7 @@ def _sort_model_list(model_list: ModelList) -> dict[str, ModelList]:
     return result
 
 
-class ModelMapping(_MapModel, ABC, MutableMapping[str, Model], Generic[_KT, _TModelBase]):
+class ModelMapping(_MapModel, ABC, MutableMapping[_KT, _TModelBase]):
     """Base class for mappings containing models."""
 
     def __getitem__(self, key: str, /) -> Any:  # noqa D105
