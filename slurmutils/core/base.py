@@ -750,7 +750,7 @@ def _scan(s: str, /, mode: Mode) -> Iterable[tuple[str, str]]:
     """
     match mode:
         case mode.ONELINE:
-            expr = _scan_line(_clean(s)[0])
+            expr = _scan_line(c[0]) if (c := _clean(s)) else []
 
         case mode.STANZA:
             expr = _clean(s)
