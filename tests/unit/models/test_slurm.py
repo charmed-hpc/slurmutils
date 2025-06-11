@@ -21,7 +21,9 @@ from pyfakefs.fake_filesystem_unittest import TestCase
 
 from slurmutils import (
     DownNodes,
+    FrontendNode,
     Node,
+    NodeSet,
     Partition,
     SlurmConfig,
     slurmconfig,
@@ -356,3 +358,23 @@ class TestSlurmConfig(TestCase):
         with self.assertRaises(AttributeError):
             config = slurmconfig.loads(EXAMPLE_SLURM_CONFIG)
             _ = config.auth
+
+    def test_empty_config(self) -> None:
+        """Test that the `slurm.conf` configuration file models correctly handle empty config."""
+        config = SlurmConfig.from_str("")
+        self.assertIsNone(config.accounting_storage_port)
+
+        config = DownNodes.from_str("")
+        self.assertIsNone(config.down_nodes)
+
+        config = FrontendNode.from_str("")
+        self.assertIsNone(config.deny_users)
+
+        config = Node.from_str("")
+        self.assertIsNone(config.node_addr)
+
+        config = NodeSet.from_str("")
+        self.assertIsNone(config.feature)
+
+        config = Partition.from_str("")
+        self.assertIsNone(config.partition_name)
