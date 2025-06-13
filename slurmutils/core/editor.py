@@ -42,9 +42,14 @@ class BaseEditor(Protocol[_TModel]):
         user: str | int | None = None,
         group: str | int | None = None,
     ) -> None:
-        """Marshal a configuration model into a file."""
-        Path(file).write_text(self.dumps(obj) + "\n")
-        _set_file_permissions(file, mode=mode, user=user, group=group)
+        """Atomically marshal a configuration model into a file."""
+        # Write to a temp file then atomically replace the target file.
+        target = Path(file)
+        swap = target.with_stem("." + target.stem).with_suffix(target.suffix + ".swp")
+
+        swap.write_text(self.dumps(obj) + "\n")
+        _set_file_permissions(swap, mode=mode, user=user, group=group)
+        swap.replace(target)
 
     def dumps(self, obj: _TModel, /) -> str:
         """Marshal a configuration model into a `str`."""
