@@ -43,8 +43,13 @@ class BaseEditor(Protocol[_TModel]):
         group: str | int | None = None,
     ) -> None:
         """Marshal a configuration model into a file."""
-        Path(file).write_text(self.dumps(obj) + "\n")
-        _set_file_permissions(file, mode=mode, user=user, group=group)
+        # Write to a temp file then atomically replace the target file.
+        dst = Path(file)
+        tmp = dst.with_suffix(dst.suffix + ".tmp")
+
+        tmp.write_text(self.dumps(obj) + "\n")
+        _set_file_permissions(tmp, mode=mode, user=user, group=group)
+        tmp.replace(dst)
 
     def dumps(self, obj: _TModel, /) -> str:
         """Marshal a configuration model into a `str`."""
