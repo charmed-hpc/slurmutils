@@ -35,15 +35,17 @@ classifiers=[
     "Intended Audience :: Science/Research",
     "License :: OSI Approved :: GNU Lesser General Public License v3 (LGPLv3)",
     "Operating System :: POSIX :: Linux",
-    "Programming Language :: Python :: 3.8",
     "Programming Language :: Python :: 3.9",
     "Programming Language :: Python :: 3.10",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
+    "Programming Language :: Python :: 3.13",
 ]
 
 [tool.poetry.dependencies]
-python = ">=3.8"
-jsonschema = "~=4.23.0"
-typing-extensions = "4.12.2"
+python = ">=3.9"
+jsonschema = "~=4.23"
+typing-extensions = "~=4.14"
 
 [tool.poetry.urls]
 "Bug Tracker" = "https://github.com/charmed-hpc/slurmutils/issues"
