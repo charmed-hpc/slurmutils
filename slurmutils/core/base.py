@@ -44,9 +44,9 @@ from collections.abc import (
 from dataclasses import dataclass
 from enum import Enum, auto
 from functools import singledispatchmethod
-from inspect import isclass
+from inspect import getmro
 from itertools import filterfalse, takewhile
-from types import MethodType, NoneType, UnionType, get_original_bases
+from types import MethodType, NoneType, UnionType
 from typing import (
     Annotated,
     Any,
@@ -58,7 +58,7 @@ from typing import (
 )
 
 from jsonschema import ValidationError, validate
-from typing_extensions import Self
+from typing_extensions import Self, get_original_bases
 
 from ..exceptions import ModelError
 from .callback import Callback, DefaultCallback
@@ -670,7 +670,7 @@ def _(model_t: Model, s: str) -> dict[str, Any]:
                 )
             )
 
-        if isclass(tp[0]) and issubclass(tp[0], _ModelBase):
+        if _ModelBase in getmro(tp[0]):
             result[metadata.origin or token] = tp[0].from_str("\n".join(expr))
             continue
 
