@@ -73,10 +73,17 @@ jobs:
   unit-test:
     name: Unit tests
     runs-on: ubuntu-24.04
+    strategy:
+      matrix:
+        python-version: ["3.10", "3.12"]
     steps:
       - name: Checkout
         uses: actions/checkout@v4
+      - name: Install Python ${{ matrix.python-version }}
+        uses: actions/setup-python@v5
+        with:
+          python-version: ${{ matrix.python-version }}
       - name: Install dependencies
         run: pipx install tox
       - name: Run tests
-        run: tox run -e unit
+        run: tox run -x testenv.basepython=${{ matrix.python-version }} -e unit
