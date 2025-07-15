@@ -481,7 +481,7 @@ class SlurmConfig(Model):
         list[str] | None,
         Metadata(callback=CommaSepCallback),
     ]
-    reboot_program: str | None
+    reboot_program: Annotated[str | None, Metadata(callback=QuoteCallback)]
     reconfig_flags: Annotated[list[str] | None, Metadata(callback=CommaSepCallback)]
     requeue_exit: Annotated[list[str | int] | None, Metadata(callback=CommaSepCallback)]
     requeue_exit_hold: Annotated[list[str | int] | None, Metadata(callback=CommaSepCallback)]
