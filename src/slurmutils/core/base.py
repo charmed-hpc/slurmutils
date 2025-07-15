@@ -396,7 +396,7 @@ def make_model_builder(
     def match(obj: Any) -> Model | ModelList | ModelMapping | None:
         for model in models:
             try:
-                validate(obj, schema=model.__model_schema__)
+                validate(obj, schema=cast(dict[str, Any], model.__model_schema__))
                 return model(obj)
             except ValidationError:
                 pass
