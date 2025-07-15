@@ -13,44 +13,60 @@
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 [build-system]
-requires = ["poetry-core"]
-build-backend = "poetry.core.masonry.api"
+requires = ["hatchling"]
+build-backend = "hatchling.build"
 
-[tool.poetry]
+[project]
 name = "slurmutils"
 version = "1.1.4"
 description = "Utilities and APIs for interfacing with the Slurm workload manager."
-repository = "https://github.com/charmed-hpc/slurmutils"
-authors = ["Jason C. Nucciarone <nuccitheboss@ubuntu.com>"]
-maintainers = [
-    "Jason C. Nucciarone <nuccitheboss@ubuntu.com>",
-    "Ubuntu High-Performance Computing <hpc-ubuntu-group@canonical.com>"
-]
-license = "LGPL-3.0-only"
+authors = [{ name = "Jason C. Nucciarone", email = "nuccitheboss@ubuntu.com" }]
+requires-python = ">=3.10"
 readme = "README.md"
-keywords = ["HPC", "administration", "orchestration", "utility"]
-classifiers=[
+license = "LGPL-3.0-only"
+maintainers = [
+    { name = "Jason C. Nucciarone", email = "nuccitheboss@ubuntu.com" },
+    { name = "Ubuntu High-Performance Computing", email = "hpc-ubuntu-group@canonical.com" },
+]
+keywords = [
+    "HPC",
+    "administration",
+    "orchestration",
+    "utility",
+]
+classifiers = [
     "Development Status :: 4 - Beta",
     "Intended Audience :: Developers",
     "Intended Audience :: Science/Research",
     "License :: OSI Approved :: GNU Lesser General Public License v3 (LGPLv3)",
     "Operating System :: POSIX :: Linux",
-    "Programming Language :: Python :: 3.9",
     "Programming Language :: Python :: 3.10",
     "Programming Language :: Python :: 3.11",
     "Programming Language :: Python :: 3.12",
     "Programming Language :: Python :: 3.13",
 ]
+dependencies = [
+    "jsonschema~=4.23",
+    "typing-extensions~=4.14",
+]
 
-[tool.poetry.dependencies]
-python = ">=3.9"
-jsonschema = "~=4.23"
-typing-extensions = "~=4.14"
+[project.optional-dependencies]
+dev = [
+    # Test deps
+    "coverage[toml] ~= 7.6",
+    "pyfakefs ~= 5.9",
+    "pytest ~= 8.3",
 
-[tool.poetry.urls]
-"Bug Tracker" = "https://github.com/charmed-hpc/slurmutils/issues"
+    # Linting
+    "ruff",
+    "codespell",
+    "pyright"
+]
 
-# Testing tools configuration
+[project.urls]
+repository = "https://github.com/charmed-hpc/slurmutils"
+issues = "https://github.com/charmed-hpc/slurmutils/issues"
+
 [tool.coverage.run]
 branch = true
 
@@ -61,16 +77,13 @@ show_missing = true
 minversion = "6.0"
 log_cli_level = "INFO"
 
-# Spell checking tools configuration
 [tool.codespell]
 skip = "build,lib,venv,icon.svg,.tox,.git,.mypy_cache,.ruff_cache,.vscode,.coverage"
 
-# Formatting tools configuration
 [tool.black]
 line-length = 99
 target-version = ["py310"]
 
-# Linting tools configuration
 [tool.ruff]
 line-length = 99
 extend-exclude = ["__pycache__", "*.egg_info"]
@@ -95,4 +108,4 @@ per-file-ignores = {"tests/*" = ["D100","D101","D102","D103","D104"]}
 mccabe = { "max-complexity" = 15 }
 
 [tool.pyright]
-include = ["slurmutils/*"]
+include = ["src/*"]
