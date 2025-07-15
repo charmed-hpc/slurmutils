@@ -1,200 +1,96 @@
-# Contributing to slurmutils
+# Contributing to `slurmutils`
 
-Do you have something that you wish to contribute to slurmutils? **If so, here is how you can help!**
+Do you want to contribute to the `slurmutils` repository? You've come to the right place then!
+__Here is how you can get involved.__
 
-Please take a moment to review this document so that the contribution process will be easy and effective for everyone
-involved.
+Before you start working on your contribution, please familiarize yourself with the [Charmed
+HPC project's contributing guide]. After you've gone through the main contributing guide,
+you can use this guide for specific information on contributing to the `slurmutils` repository.
 
-Following these guidelines helps you communicate that you respect the developers managing and developing slurmutils.
-In return, they should reciprocate that respect while they are addressing your issue or assessing your submitted
-patches and features.
+Have any questions? Feel free to ask them in the [Ubuntu High-Performance Computing Matrix chat]
+or on [GitHub Discussions].
 
-Have any questions? Feel free to ask them in the [Ubuntu HPC Matrix space](https://matrix.to/#/#ubuntu-hpc:matrix.org).
+[Charmed HPC project's contributing guide]: https://github.com/charmed-hpc/docs/blob/main/CONTRIBUTING.md
+[Ubuntu High-Performance Computing Matrix chat]: https://matrix.to/#/#hpc:ubuntu.com
+[GitHub Discussions]: https://github.com/orgs/charmed-hpc/discussions/categories/support
 
-### Table of Contents
+## Hacking on `slurmutils`
 
-* [Using the issue tracker](#using-the-issue-tracker)
-* [Issues and Labels](#issues-and-labels)
-* [Bug Reports](#bug-reports)
-* [Feature Requests](#feature-requests)
-* [Pull Requests](#pull-requests)
-* [Discussions](#discussions)
-* [Code Guidelines](#code-guidelines)
-* [License](#license--cla)
 
-## Using the issue tracker
+This repository uses [just](https://github.com/casey/just) and [uv](https://github.com/astral-sh/uv) for development
+which provide some useful commands that will help you while hacking on `slurmutils`:
 
-The issue tracker is the preferred way for tracking [bug reports](#bug-reports), [feature requests](#feature-requests),
-and [submitted pull requests](#pull-requests), but please follow these guidelines for the issue tracker:
+```shell
+# Create a developer environment
+just env
 
-* Please **do not** use the issue tracker for personal issues and/or support requests.
-The [Discussions](#discussions) page is a better place to get help for personal support requests.
+# Upgrade uv.lock with the latest dependencies
+just upgrade
+```
 
-* Please **do not** derail or troll issues. Keep the discussion on track and have respect for the other
-users/contributors of slurmutils.
+Run `just help` to view the full list of available recipes.
 
-* Please **do not** post comments consisting solely of "+1", ":thumbsup:", or something similar.
-Use [GitHub's "reactions" feature](https://blog.github.com/2016-03-10-add-reactions-to-pull-requests-issues-and-comments/)
-instead.
-  * The maintainers of slurmutils reserve the right to delete comments that violate this rule.
+### Before opening a pull request on the `slurmutils` repository
 
-* Please **do not** repost or reopen issues that have been closed. Please either
-submit a new issue or browser through previous issues.
-  * The maintainers of slurmutils reserve the right to delete issues that violate this rule.
+Ensure that your changes pass all the existing tests, and that you have added tests
+for any new features you're introducing in this changeset.
 
-## Issues and Labels
+Your proposed changes will not be reviewed until your changes pass all the
+required tests. You can run the required tests locally using `just`:
 
-The slurmutils issue tracker uses a variety of labels to help organize and identify issues.
-Here is a list of some of these labels, and how the maintainers of slurmutils use them:
+```shell
+# Apply formatting standards to code
+just fmt
 
-* `Type: Bug` - Issues reported in the slurmutils source code that either produce errors or unexpected behavior.
+# Check code against coding style standards
+just lint
 
-* `Status: Confirmed` - Issues marked `Type: Bug` that have be confirmed to be reproducible on a separate system.
+# Run static type checks
+just typecheck
 
-* `Type: Documentation` - Issues for improving or updating slurmutils's documentation.
-Can also be used for pull requests.
+# Run unit tests
+just unit
+```
 
-* `Type: Refactor` - Issues that pertain to improving the existing slurmutils code base.
+## License information
 
-* `Type: Idea Bank` - Issues that pertain to proposing potential improvement to slurmutils.
+By contributing to `slurmutils`, you agree to license your contribution under
+the GNU Lesser General Public License v3.0 only license.
 
-* `Type: Enchancement` - Issues marked as an agreed upon enhancement to slurmutils. Can also be used for pull requests.
+### Adding a new file to `slurmutils`
 
-* `Status: Help wanted` - Issues where we need help from the greater slurmutils community to solve.
+If you add a new source code file to the repository, add the following license header
+as a comment to the top of the file with the copyright owner set to the organization
+you are contributing on behalf of and the current year set as the copyright year.
 
-For a complete look at slurmutils's labels, see the
-[project labels page](https://github.com/canonical/slurmutils/labels).
+```text
+Copyright (C) [year] [name of author]
 
-## Bug Reports
+This program is free software; you can redistribute it and/or
+modify it under the terms of the GNU Lesser General Public
+License version 3 as published by the Free Software Foundation.
 
-A bug is a *demonstrable problem* that is caused by slurmutils. Good bug reports make slurmutils more robust, so thank
-you for taking the time to report issues in the source code!
+This program is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+Lesser General Public License for more details.
 
-Guidelines for reporting bugs in slurmutils:
+You should have received a copy of the GNU Lesser General Public License
+along with this program.  If not, see <http://www.gnu.org/licenses/>.
+```
 
-1. __Validate your testlet__ &mdash; ensure that your issue is not being caused by either a semantic or syntactic
-error in your testlet's code.
+### Updating an existing file in `slurmutils`
 
-2. __Use the GitHub issue search__ &mdash; check if the issue you are encountering has already been reported by
-someone else.
+If you are making changes to an existing file, and the copyright year is not the current year,
+update the year range to include the current year. For example, if a file's copyright year is:
 
-3. __Check if the issue has already been fixed__ &mdash; try to reproduce your issue using the latest `main`
-in the slurmutils repository.
+```text
+Copyright 2023 Canonical Ltd.
+```
 
-4. **Isolate the problem** &mdash; the more pinpointed the issue is, the easier time the slurmutils developers
-will have fixing it.
+and you make changes to that file in 2025, update the copyright year in the file to:
 
-A good bug report should not leave others needing to chase you for more information.
-Please try to be as detailed as possible in your report. What is your environment? What steps will reproduce the issue?
-What operating system are you experiencing the problem on? Have you had the same results on a different
-operating system? What would you expect to be the outcome? All these details will help the developers fix any
-potential bugs.
+```text
+Copyright 2023-2025 Canonical Ltd.
+```
 
-## Feature Requests
-
-All feature requests should be posted to GitHub Discussions and tagged as `Type: Idea Bank`. The maintainers of
-slurmutils already know the features they want to incorporate into slurmutils, but they are always open to
-new ideas and potential improvements. GitHub Discussions is the best place to post these types of requests
-because it allows for feedback from the entire community and does not bloat the issue tracker. Please note that not
-all feature requests will be incorporated into slurmutils. Also, feature requests posted on the issue tracker
-will be tagged as `Type: Invalid` and closed. Lastly, please note that spamming the maintainers to incorporate a
-feature you want into slurmutils will not improve its likelihood of being implemented; it may result in you receiving
-a temporary ban from the repository.
-
-## Pull Requests
-
-Good pull requests &mdash; patches, improvements, new features &mdash; are a huge help. These pull requests should
-remain focused in scope and should not contain unrelated commits.
-
-__Ask first__ before embarking on any __significant__ pull request (e.g. implementing new features, refactoring code,
-incorporating a new test environment provider, etc.), otherwise you risk spending a lot of time working on something
-that slurmutils's developers might not want to merge into the project! For trivial things, or things that do not require
-a lot of your time, you can go ahead and make a pull request.
-
-Adhering to the following process is the best way to get your work
-included in the project:
-
-1. [Fork](https://help.github.com/articles/fork-a-repo/) the project, clone your fork,
-   and configure the remotes:
-
-   ```bash
-   # Clone your fork of the repo into the current directory
-   git clone https://github.com/<your-username>/slurmutils.git
-   # Navigate to the newly cloned directory
-   cd slurmutils
-   # Assign the original repo to a remote called "upstream"
-   git remote add upstream https://github.com/canonical/slurmutils.git
-   ```
-
-2. If you cloned a while ago, pull the latest changes from the upstream slurmutils repository:
-
-   ```bash
-   git checkout main
-   git pull upstream main
-   ```
-
-3. Create a new topic branch (off the main project development branch) to
-   contain your feature, change, or fix:
-
-   ```bash
-   git checkout -b <topic-branch-name>
-   ```
-
-4. Ensure that your changes pass all tests:
-
-    ```bash
-    tox run -e fmt
-    tox run -e lint
-    tox run -e unit
-    ```
-
-5. Commit your changes in logical chunks. Please adhere to these [git commit
-   message guidelines](https://tbaggery.com/2008/04/19/a-note-about-git-commit-messages.html)
-   or your code is unlikely be merged into the main project. Use Git's
-   [interactive rebase](https://help.github.com/articles/about-git-rebase/)
-   feature to tidy up your commits before making them public.
-
-6. Locally merge (or rebase) the upstream development branch into your topic branch:
-
-   ```bash
-   git pull [--rebase] upstream main
-   ```
-
-7. Push your topic branch up to your fork:
-
-   ```bash
-   git push origin <topic-branch-name>
-   ```
-
-8. [Open a Pull Request](https://help.github.com/articles/about-pull-requests/)
-    with a clear title and description against the `main` branch.
-
-**IMPORTANT**: By submitting a patch, improvement, or new feature, you agree to allow the maintainers of slurmutils to
-license your contributions under the terms of the [GNU Lesser General Public License, v3.0](./LICENSE), and you agree to sign
-[Canonical's contributor license agreement](https://ubuntu.com/legal/contributors)
-
-## Discussions
-
-GitHub's discussions are a great place to connect with other users of slurmutils as well as discuss potential
-features and resolve personal support questions. It is expected that the users of slurmutils remain respectful of
-each other. Discussion moderators reserve the right to suspend discussions and/or delete posts that do not follow
-this rule.
-
-## Code guidelines
-
-### Python
-
-The following guidelines must be adhered to if you are writing code to be merged into the main slurmutils code base:
-
-* Adhere to the Python code style guidelines outlined in [Python Enhancement Proposal 8](https://pep8.org/).
-
-* Adhere to the Python docstring conventions outlined in
-[Python Enhancement Proposal 257](https://www.python.org/dev/peps/pep-0257/).
-  * *slurmutils docstrings follow the
-  [Google docstring format](https://github.com/google/styleguide/blob/gh-pages/pyguide.md#38-comments-and-docstrings)*.
-
-## License & CLA
-
-By contributing your code to slurmutils, you agree to license your contribution under the
-[GNU Lesser General Public License, v3.0](./LICENSE), and you agree to
-sign [Canonical's contributor license agreement](https://ubuntu.com/legal/contributors).

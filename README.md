@@ -41,14 +41,8 @@ $ python3 -m pip install slurmutils
 
 #### Option 2: Install from source
 
-We use the [Poetry](https://python-poetry.org) packaging and dependency manager to
-manage this project. It must be installed on your system if installing slurmutils
-from source.
-
 ```shell
-$ git clone https://github.com/canonical/slurmutils.git
-$ cd slurmutils
-$ poetry install
+$ pip install .
 ```
 
 ### Usage
@@ -213,13 +207,14 @@ here are some further resources for you to explore:
 
 ## 🛠️ Development
 
-This project uses [tox](https://tox.wiki) as its command runner, which provides 
-some useful commands that will help you while hacking on slurmutils:
+The project uses [just](https://github.com/casey/just) and [uv](https://github.com/astral-sh/uv) 
+for development, which provides some useful commands that will help you while hacking on slurmutils:
 
 ```shell
-tox run -e fmt   # Apply formatting standards to code.
-tox run -e lint  # Check code against coding style standards.
-tox run -e unit  # Run unit tests.
+just fmt          # Apply formatting standards to code
+just lint         # Check code against coding style standards
+just typecheck    # Run static type checks
+just unit         # Run unit tests
 ```
 
 If you're interested in contributing your work to slurmutils, 
