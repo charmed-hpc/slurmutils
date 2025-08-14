@@ -125,6 +125,8 @@ class TestSlurmConfig(TestCase):
             config.proctrack_type = "proctrack/linuxproc"
             config.plugin_dir.append("/snap/slurm/current/plugins")
             config.slurmctld_parameters = {"enable_configless": True}
+            config.include = ["slurm.conf.overrides", "slurm.conf.profiling"]
+
             new_node = Node(**config.nodes["juju-c9fc6f-2"].dict())
             new_node.node_name = "batch-0"
             del config.nodes["juju-c9fc6f-2"]
@@ -140,6 +142,7 @@ class TestSlurmConfig(TestCase):
             ["/usr/local/lib", "/usr/local/slurm/lib", "/snap/slurm/current/plugins"],
         )
         self.assertDictEqual(config.slurmctld_parameters, {"enable_configless": True})
+        self.assertListEqual(config.include, ["slurm.conf.overrides", "slurm.conf.profiling"])
         self.assertEqual(config.nodes["batch-0"].node_addr, "10.152.28.48")
 
         with slurmconfig.edit("/etc/slurm/slurm.conf") as config:
